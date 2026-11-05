@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classical Academy | Admin Panel</title>
+  <link rel="stylesheet" href="admin.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">CA</div>
+        <div><strong>Classical</strong><small>ACADEMY ADMIN</small></div>
+      </div>
+
+      <div class="profile-mini">
+        <div class="avatar" id="avatar">SA</div>
+        <div><strong id="sideName">Super Admin</strong><small id="sideRole">Super Administrator</small></div>
+      </div>
+
+      <nav>
+        <p class="nav-label">MAIN MENU</p>
+        <a class="nav-link active" href="#" data-page="dashboard">▦ <span>Dashboard</span></a>
+        <a class="nav-link" href="#" data-page="students">♙ <span>Students</span></a>
+        <a class="nav-link" href="#" data-page="teachers">♟ <span>Teachers</span></a>
+        <a class="nav-link" href="#" data-page="courses">▤ <span>Courses</span></a>
+        <a class="nav-link" href="#" data-page="exams">✎ <span>Exams & Results</span></a>
+        <a class="nav-link" href="#" data-page="payments">৳ <span>Payments</span></a>
+        <a class="nav-link" href="#" data-page="moderation">⚑ <span>Moderation</span></a>
+        <a class="nav-link" href="#" data-page="staff">♧ <span>Staff & Roles</span></a>
+        <a class="nav-link" href="#" data-page="activity">◷ <span>Activity Logs</span></a>
+        <a class="nav-link" href="#" data-page="settings">⚙ <span>Settings</span></a>
+      </nav>
+
+      <button class="logout" id="logoutBtn">↪ Logout</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p>Welcome back to Classical Academy</p>
+        </div>
+        <div class="top-actions">
+          <select id="roleSelect" aria-label="Demo role selector">
+            <option value="superadmin">Super Admin</option>
+            <option value="admin">Admin</option>
+            <option value="moderator">Moderator</option>
+            <option value="teacher">Teacher</option>
+          </select>
+          <div class="top-avatar">CA</div>
+        </div>
+      </header>
+
+      <section class="content" id="content">
+        <!-- Dashboard is rendered by admin.js -->
+      </section>
+      <footer>© 2026 Classical Academy. All rights reserved.</footer>
+    </main>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
