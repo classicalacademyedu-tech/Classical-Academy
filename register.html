@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account | Classical Academy</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,sans-serif;background:#f5f2ff;color:#241b35;padding:25px 15px}
+    .card{max-width:480px;margin:20px auto;background:white;padding:28px;border-radius:18px;box-shadow:0 8px 35px #30205b18}
+    h1{text-align:center;color:#673ab7;margin-bottom:5px}
+    .sub{text-align:center;color:#777;margin-bottom:25px}
+    label{display:block;font-weight:600;margin:14px 0 6px}
+    input,select{width:100%;padding:13px;border:1px solid #ddd;border-radius:9px;font-size:15px;background:white}
+    button{width:100%;padding:14px;background:#673ab7;color:white;border:0;border-radius:9px;font-size:16px;font-weight:bold;margin-top:22px;cursor:pointer}
+    button:disabled{opacity:.6}
+    .message{margin-top:15px;text-align:center;font-size:14px;line-height:1.5}
+    a{color:#673ab7;text-decoration:none}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Classical Academy</h1>
+    <p class="sub">Create your student account</p>
+
+    <form id="registerForm">
+      <label>Full Name</label>
+      <input id="fullName" type="text" required placeholder="তোমার পূর্ণ নাম">
+
+      <label>Username</label>
+      <input id="username" type="text" required minlength="3"
+             placeholder="একটি Username দাও">
+
+      <label>Email Address</label>
+      <input id="email" type="email" required placeholder="example@gmail.com">
+
+      <label>Mobile Number</label>
+      <input id="phone" type="tel" required placeholder="01XXXXXXXXX">
+
+      <label>Class</label>
+      <select id="classLevel" required>
+        <option value="">Select Class</option>
+        <option value="6">Class 6</option>
+        <option value="7">Class 7</option>
+        <option value="8">Class 8</option>
+        <option value="9">Class 9</option>
+        <option value="10">Class 10</option>
+      </select>
+
+      <div id="groupBox" class="hidden">
+        <label>Group</label>
+        <select id="studentGroup">
+          <option value="">Select Group</option>
+          <option value="Science">Science</option>
+          <option value="Business Studies">Business Studies</option>
+          <option value="Humanities">Humanities</option>
+        </select>
+      </div>
+
+      <label>Password</label>
+      <input id="password" type="password" required minlength="8"
+             placeholder="কমপক্ষে ৮ অক্ষর">
+
+      <label>Confirm Password</label>
+      <input id="confirmPassword" type="password" required
+             placeholder="পাসওয়ার্ড আবার লিখো">
+
+      <button id="registerBtn" type="submit">Create Account</button>
+      <div id="message" class="message"></div>
+    </form>
+
+    <p class="sub" style="margin-top:22px">
+      Already have an account? <a href="login.html">Login</a>
+    </p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>
