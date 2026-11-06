@@ -1,5 +1,11 @@
 "use strict";
+const SUPABASE_URL = "https://fskfjvyetjuofappxqnw.supabase.co";
+const SUPABASE_KEY = "sb_publishable_m07iz_JW12ynejlP3hXVJQ_wzuXq_4X";
 
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 /* =========================================
    CLASSICAL ACADEMY ADMIN PANEL
    Frontend Demo Version
@@ -96,7 +102,7 @@ let activities = [
   "Classical Academy management system started"
 ];
 
-let currentRole = "superadmin";
+let currentRole = "";
 let currentPage = "dashboard";
 
 /* =========================================
@@ -910,20 +916,44 @@ document.querySelectorAll(".nav-link").forEach(link => {
   });
 });
 
-roleSelect.addEventListener("change", () => {
-  currentRole = roleSelect.value;
-  updateRole();
-});
+if (roleSelect) {
+  roleSelect.disabled = true;
+  roleSelect.style.display = "none";
+}
 
 document.getElementById("menuBtn").addEventListener("click", () => {
   document.getElementById("sidebar").classList.toggle("open");
 });
 
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  if (confirm("Are you sure you want to logout?")) {
-    notify("Connect this button to your authentication system.");
-  }
-});
+const logoutButton = document.getElementById("logoutBtn");
+
+if (logoutButton) {
+  logoutButton.addEventListener("click", async () => {
+
+    if (!confirm("তুমি কি সত্যিই Logout করতে চাও?")) {
+      return;
+    }
+
+    logoutButton.disabled = true;
+    logoutButton.textContent = "Logging out...";
+
+    try {
+      const { error } = await supabaseClient.auth.signOut();
+
+      if (error) throw error;
+
+      window.location.replace("../index.html");
+
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert(error.message || "Logout করা যায়নি।");
+
+      logoutButton.disabled = false;
+      logoutButton.innerHTML = "↪ Logout";
+    }
+
+  });
+}
 
 content.addEventListener("submit", event => {
   if (event.target.id === "welcomeForm") {
@@ -938,7 +968,86 @@ content.addEventListener("submit", event => {
 });
 
 /* =========================================
-   INITIALIZE
+   AUTHENTICATION & INITIALIZE
 ========================================= */
 
-updateRole();
+async function initializeAdminPanel() {
+
+  try {
+
+    // Check Supabase session
+    const { data: sessionData, error: sessionError } =
+      await supabaseClient.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const session = sessionData.session;
+
+    if (!session) {
+      window.location.replace("../index.html");
+      return;
+    }
+
+    // Get actual user profile and role
+    const { data: profile, error: profileError } =
+      await supabaseClient
+        .from("profiles")
+        .select("full_name, role")
+        .eq("id", session.user.id)
+        .single();
+
+    if (profileError) throw profileError;
+
+    const allowedRoles = [
+      "superadmin",
+      "admin",
+      "moderator",
+      "teacher"
+    ];
+
+    if (!profile || !allowedRoles.includes(profile.role)) {
+
+      await supabaseClient.auth.signOut();
+
+      alert("তোমার Admin Panel ব্যবহারের অনুমতি নেই।");
+
+      window.location.replace("../index.html");
+      return;
+    }
+
+    // Set role from database
+    currentRole = profile.role;
+
+    // Set actual user name
+    const sideName = document.getElementById("sideName");
+
+    if (sideName && profile.full_name) {
+      sideName.textContent = profile.full_name;
+    }
+
+    // Hide role selector
+    if (roleSelect) {
+      roleSelect.disabled = true;
+      roleSelect.style.display = "none";
+    }
+
+    addActivity("Authenticated user opened Admin Panel");
+
+    updateRole();
+
+  } catch (error) {
+
+    console.error("Admin initialization error:", error);
+
+    alert(
+      error.message ||
+      "Admin Panel চালু করা যায়নি। আবার Login করো।"
+    );
+
+    await supabaseClient.auth.signOut();
+
+    window.location.replace("../index.html");
+  }
+}
+
+initializeAdminPanel();
