@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Classical Academy</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,sans-serif;background:#f5f2ff;color:#241b35;padding:25px 15px}
+    .card{max-width:430px;margin:50px auto;background:white;padding:30px;border-radius:18px;box-shadow:0 8px 35px #30205b18}
+    h1{text-align:center;color:#673ab7}
+    p{text-align:center;color:#777}
+    label{display:block;font-weight:bold;margin:17px 0 7px}
+    input{width:100%;padding:14px;border:1px solid #ddd;border-radius:9px;font-size:15px}
+    button{width:100%;padding:14px;background:#673ab7;color:white;border:0;border-radius:9px;font-size:16px;font-weight:bold;margin-top:22px;cursor:pointer}
+    .message{text-align:center;margin-top:15px;font-size:14px;line-height:1.5}
+    a{color:#673ab7;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Classical Academy</h1>
+    <p>Welcome back! Login to continue.</p>
+
+    <form id="loginForm">
+      <label>Email Address</label>
+      <input id="loginEmail" type="email" required placeholder="তোমার Email">
+
+      <label>Password</label>
+      <input id="loginPassword" type="password" required placeholder="তোমার Password">
+
+      <button id="loginBtn" type="submit">Login</button>
+      <div id="loginMessage" class="message"></div>
+    </form>
+
+    <p style="margin-top:20px">
+      <a href="#" id="forgotPassword">Forgot Password?</a>
+    </p>
+
+    <p>Don't have an account? <a href="register.html">Register</a></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>
