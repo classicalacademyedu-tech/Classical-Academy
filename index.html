@@ -1,42 +1,254 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#075be8"><title>Classical Academy | Learn • Practice • Grow</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#6d28d9">
+  <meta name="description" content="Classical Academy - জ্ঞান, দক্ষতা ও সাফল্যের পথে তোমার বিশ্বস্ত শিক্ষাসঙ্গী।">
+
+  <title>Classical Academy | Learn. Grow. Succeed.</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="welcome.css">
 </head>
+
 <body>
-<header class="header">
- <a class="brand" href="#home"><span class="logo">CA</span><span>Classical<span>Academy</span><small>Learn • Practice • Grow</small></span></a>
- <nav id="nav"><a href="#home">হোম</a><a href="#courses">কোর্স</a><a href="#about">আমাদের সম্পর্কে</a><a href="#teachers">শিক্ষক</a><a href="#faq">FAQ</a></nav>
- <div class="head-actions"><button class="btn outline" data-open="login">লগইন</button><button class="btn primary" data-open="register">অ্যাকাউন্ট তৈরি</button><button class="hamb" id="hamb">☰</button></div>
-</header>
-<main id="home">
-<section class="hero">
- <div class="hero-copy">
-  <span class="eyebrow">🇧🇩 বাংলাদেশের শিক্ষার্থীদের জন্য</span>
-  <h1>Welcome to<br><em>Classical Academy</em></h1>
-  <h2>Learn Anytime, Anywhere!</h2>
-  <p>নিজেকে গড়ুন, স্বপ্ন পূরণ করুন — অনলাইনে শিখুন, অনুশীলন করুন, এগিয়ে যান।</p>
-  <div class="stats"><div><b>৫০০+</b><small>ভিডিও লেসন</small></div><div><b>২৪/৭</b><small>শেখার সুযোগ</small></div><div><b>১০০%</b><small>নিজের গতিতে শেখা</small></div></div>
-  <div class="hero-actions"><a class="btn primary large" href="#courses">🚀 কোর্স দেখুন</a><button class="btn outline large" data-open="register">ফ্রি অ্যাকাউন্ট খুলুন →</button></div>
- </div>
- <div class="hero-visual"><div class="circle c1"></div><div class="circle c2"></div><div class="student">🎓</div><div class="floating f1">📚 <b>শিখুন প্রতিদিন</b></div><div class="floating f2">🏆 <b>লক্ষ্যের পথে এগিয়ে যান</b></div><div class="scribble">Dream Big<br>Learn More</div></div>
-</section>
-<section class="trust"><div>🛡️ <span><b>নিরাপদ শেখার পরিবেশ</b><small>শিক্ষার্থী-কেন্দ্রিক প্ল্যাটফর্ম</small></span></div><div>📱 <span><b>যেকোনো ডিভাইসে</b><small>মোবাইল, ট্যাব ও কম্পিউটার</small></span></div><div>🎧 <span><b>সহায়তা ব্যবস্থা</b><small>প্রয়োজনে পাশে থাকব</small></span></div><div>💙 <span><b>Made for Bangladesh</b><small>বাংলা ও ইংরেজি অভিজ্ঞতা</small></span></div></section>
-<section class="section" id="courses"><div class="section-title"><span class="eyebrow">শেখা শুরু হোক</span><h2>জনপ্রিয় কোর্সসমূহ</h2><p>তোমার আগ্রহ ও লক্ষ্য অনুযায়ী কোর্স বেছে নাও।</p></div><div class="course-grid">
- <article class="course"><div class="course-art blue">💻</div><span class="tag">স্কিল ডেভেলপমেন্ট</span><h3>Web Design & Development</h3><p>HTML, CSS ও JavaScript-এর ভিত্তি থেকে শেখা।</p><button class="text-btn" data-open="login">বিস্তারিত দেখুন →</button></article>
- <article class="course"><div class="course-art green">📐</div><span class="tag">একাডেমিক</span><h3>গণিত প্রস্তুতি</h3><p>ধারণা, উদাহরণ ও নিয়মিত অনুশীলন।</p><button class="text-btn" data-open="login">বিস্তারিত দেখুন →</button></article>
- <article class="course"><div class="course-art peach">🌍</div><span class="tag">ইংরেজি</span><h3>Spoken English</h3><p>দৈনন্দিন কথোপকথন ও আত্মবিশ্বাস তৈরি।</p><button class="text-btn" data-open="login">বিস্তারিত দেখুন →</button></article>
-</div></section>
-<section class="about" id="about"><div><span class="eyebrow light">কেন Classical Academy?</span><h2>শুধু ক্লাস নয়,<br>শেখার সম্পূর্ণ যাত্রা।</h2><p>পরিকল্পিত লেসন, অনুশীলন, কুইজ ও অগ্রগতি—সবকিছু এক জায়গায় আনার লক্ষ্যেই Classical Academy।</p></div><div class="benefits"><div>📚 <span><b>গোছানো লার্নিং পাথ</b><small>ধাপে ধাপে সাজানো পাঠ</small></span></div><div>🧠 <span><b>কুইজ ও অনুশীলন</b><small>নিজের প্রস্তুতি যাচাই</small></span></div><div>📈 <span><b>অগ্রগতি ট্র্যাকিং</b><small>শেখার অগ্রগতি এক নজরে</small></span></div><div>🎓 <span><b>সার্টিফিকেট</b><small>কোর্স সম্পন্নের স্বীকৃতি</small></span></div></div></section>
-<section class="section teachers" id="teachers"><div class="section-title"><span class="eyebrow">আমাদের মেন্টর</span><h2>শিখবে অভিজ্ঞদের কাছ থেকে</h2></div><div class="teacher-row"><div>👨‍💻<b>টেকনোলজি মেন্টর</b><small>Programming & Web</small></div><div>👩‍🏫<b>একাডেমিক মেন্টর</b><small>Math & Science</small></div><div>🎨<b>ক্রিয়েটিভ মেন্টর</b><small>Design & Media</small></div></div></section>
-<section class="faq section" id="faq"><div class="section-title"><span class="eyebrow">সাহায্য দরকার?</span><h2>সাধারণ প্রশ্ন</h2></div><details><summary>কীভাবে অ্যাকাউন্ট তৈরি করব?</summary><p>উপরের “অ্যাকাউন্ট তৈরি” বাটনে ক্লিক করে রেজিস্ট্রেশন ফর্ম পূরণ করো।</p></details><details><summary>মোবাইল দিয়ে ব্যবহার করা যাবে?</summary><p>হ্যাঁ, সাইটটি মোবাইল, ট্যাবলেট ও ডেস্কটপে ব্যবহার উপযোগী।</p></details><details><summary>এখনই কি পেমেন্ট করা যাবে?</summary><p>এটি প্রথম UI প্রোটোটাইপ। লাইভ পেমেন্ট চালুর আগে Backend ও পেমেন্ট গেটওয়ে সংযুক্ত করতে হবে।</p></details></section>
-</main>
-<footer><a class="brand" href="#home"><span class="logo">CA</span><span>Classical<span>Academy</span><small>Learn • Practice • Grow</small></span></a><p>শেখার মাধ্যমে সম্ভাবনার নতুন দরজা খুলে দাও।</p><small>© ২০২৬ Classical Academy. All rights reserved.</small></footer>
-<div class="modal-wrap" id="modal"><div class="modal"><button class="close" id="close">×</button><div id="modalBody"></div></div></div>
-<div class="toast" id="toast"></div>
-<script src="app.js"></script>
-</body></html>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <a href="#" class="brand">
+      <span class="brand-logo">CA</span>
+      <span>Classical <b>Academy</b></span>
+    </a>
+
+    <button class="menu-toggle" id="menuToggle"
+      aria-label="Open navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#home">Home</a>
+      <a href="#teachers">Our Teachers</a>
+      <a href="#courses">Courses</a>
+      <a href="#about">About Us</a>
+      <a href="login.html" class="nav-login">Login</a>
+      <a href="register.html" class="nav-register">Get Started</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- Hero / Welcome -->
+    <section class="hero" id="home">
+
+      <div class="hero-glow glow-one"></div>
+      <div class="hero-glow glow-two"></div>
+
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="live-dot"></span>
+          Welcome to Classical Academy
+        </div>
+
+        <h1>
+          শেখার যাত্রা হোক
+          <span>সাফল্যের পথে।</span>
+        </h1>
+
+        <p class="hero-description">
+          সঠিক দিকনির্দেশনা, অভিজ্ঞ শিক্ষক এবং মানসম্মত
+          শিক্ষার মাধ্যমে গড়ে তোলো তোমার উজ্জ্বল ভবিষ্যৎ।
+        </p>
+
+        <div class="hero-actions">
+          <a href="register.html" class="btn btn-primary">
+            শেখা শুরু করো <span>→</span>
+          </a>
+          <a href="#courses" class="btn btn-outline">
+            কোর্স দেখো
+          </a>
+        </div>
+
+        <div class="hero-trust">
+          <div class="trust-avatars">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces" alt="">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=faces" alt="">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&h=80&fit=crop&crop=faces" alt="">
+          </div>
+          <p><strong>শেখার সঙ্গী হও</strong><br>আজই তোমার যাত্রা শুরু করো</p>
+        </div>
+      </div>
+
+      <!-- Animated teacher portraits -->
+      <div class="hero-visual" aria-label="Our learning community">
+
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+
+        <div class="floating-card card-left">
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&h=650&fit=crop&crop=faces" alt="Teacher portrait">
+          <span class="portrait-label">Expert Guidance</span>
+        </div>
+
+        <div class="floating-card card-right">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&h=650&fit=crop&crop=faces" alt="Teacher portrait">
+          <span class="portrait-label">Learn Together</span>
+        </div>
+
+        <div class="center-card">
+          <div class="center-icon">CA</div>
+          <span>CLASSICAL</span>
+          <strong>ACADEMY</strong>
+          <small>Learn • Grow • Succeed</small>
+        </div>
+
+        <div class="floating-note note-top">
+          <span>✦</span> Quality Education
+        </div>
+
+        <div class="floating-note note-bottom">
+          <span>✓</span> Your Future Starts Here
+        </div>
+      </div>
+
+      <a href="#about" class="scroll-down">
+        <span></span> Scroll to explore
+      </a>
+    </section>
+
+    <!-- Highlights -->
+    <section class="highlights" id="about">
+      <div class="highlight-item">
+        <span class="highlight-icon">📚</span>
+        <div><strong>মানসম্মত শিক্ষা</strong><small>সহজ ও কার্যকর শেখা</small></div>
+      </div>
+      <div class="highlight-item">
+        <span class="highlight-icon">👨‍🏫</span>
+        <div><strong>অভিজ্ঞ শিক্ষক</strong><small>সঠিক দিকনির্দেশনা</small></div>
+      </div>
+      <div class="highlight-item">
+        <span class="highlight-icon">🎯</span>
+        <div><strong>লক্ষ্যভিত্তিক শিক্ষা</strong><small>সাফল্যের প্রস্তুতি</small></div>
+      </div>
+    </section>
+
+    <!-- Teachers -->
+    <section class="section teachers-section" id="teachers">
+      <div class="section-heading">
+        <span class="eyebrow">MEET OUR TEAM</span>
+        <h2>আমাদের অভিজ্ঞ শিক্ষকবৃন্দ</h2>
+        <p>যাঁরা তোমার শেখার যাত্রাকে আরও সহজ ও আনন্দময় করে তুলবেন।</p>
+      </div>
+
+      <div class="teacher-grid" id="teacherGrid">
+
+        <!-- Demo teacher cards. Later these will load from Firestore. -->
+        <article class="teacher-card">
+          <div class="teacher-photo">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&h=650&fit=crop&crop=faces" alt="Teacher">
+            <span class="teacher-tag">Our Faculty</span>
+          </div>
+          <div class="teacher-info">
+            <h3>শিক্ষকের নাম</h3>
+            <p>বিষয়: গণিত</p>
+            <span>শিক্ষকের পরিচিতি এখানে যুক্ত হবে।</span>
+          </div>
+        </article>
+
+        <article class="teacher-card">
+          <div class="teacher-photo">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&h=650&fit=crop&crop=faces" alt="Teacher">
+            <span class="teacher-tag">Our Faculty</span>
+          </div>
+          <div class="teacher-info">
+            <h3>শিক্ষকের নাম</h3>
+            <p>বিষয়: ইংরেজি</p>
+            <span>শিক্ষকের পরিচিতি এখানে যুক্ত হবে।</span>
+          </div>
+        </article>
+
+        <article class="teacher-card">
+          <div class="teacher-photo">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&h=650&fit=crop&crop=faces" alt="Teacher">
+            <span class="teacher-tag">Our Faculty</span>
+          </div>
+          <div class="teacher-info">
+            <h3>শিক্ষকের নাম</h3>
+            <p>বিষয়: বিজ্ঞান</p>
+            <span>শিক্ষকের পরিচিতি এখানে যুক্ত হবে।</span>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Courses -->
+    <section class="section courses-section" id="courses">
+      <div class="section-heading">
+        <span class="eyebrow">EXPLORE & LEARN</span>
+        <h2>তোমার শেখার জগৎ</h2>
+        <p>নিজের শ্রেণি ও লক্ষ্য অনুযায়ী শেখার প্রস্তুতি নাও।</p>
+      </div>
+
+      <div class="course-grid">
+        <article class="course-card">
+          <div class="course-icon purple">📘</div>
+          <h3>Class 6–8</h3>
+          <p>ভিত্তি মজবুত করার জন্য নিয়মিত পাঠ ও অনুশীলন।</p>
+          <a href="register.html">শুরু করো →</a>
+        </article>
+
+        <article class="course-card">
+          <div class="course-icon pink">📗</div>
+          <h3>Class 9–10</h3>
+          <p>বিষয়ভিত্তিক প্রস্তুতি ও পরীক্ষার অনুশীলন।</p>
+          <a href="register.html">শুরু করো →</a>
+        </article>
+
+        <article class="course-card">
+          <div class="course-icon blue">📝</div>
+          <h3>পরীক্ষা ও অনুশীলন</h3>
+          <p>নিজের প্রস্তুতি যাচাই করো এবং উন্নতি করো।</p>
+          <a href="register.html">শুরু করো →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="cta-content">
+        <span class="eyebrow">YOUR JOURNEY STARTS TODAY</span>
+        <h2>আজই শুরু হোক তোমার<br><span>সাফল্যের নতুন অধ্যায়।</span></h2>
+        <p>Classical Academy-এর সঙ্গে শেখার পথে এগিয়ে চলো।</p>
+        <a href="register.html" class="btn btn-white">এখনই অ্যাকাউন্ট তৈরি করো →</a>
+      </div>
+      <div class="cta-decoration">CA</div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <a href="#" class="brand footer-brand">
+      <span class="brand-logo">CA</span>
+      <span>Classical <b>Academy</b></span>
+    </a>
+
+    <p>জ্ঞান, দক্ষতা ও সাফল্যের পথে তোমার শিক্ষাসঙ্গী।</p>
+
+    <div class="footer-links">
+      <a href="#home">Home</a>
+      <a href="#teachers">Teachers</a>
+      <a href="#courses">Courses</a>
+      <a href="login.html">Login</a>
+    </div>
+
+    <small>© <span id="currentYear"></span> Classical Academy. All rights reserved.</small>
+  </footer>
+
+  <script src="welcome.js"></script>
+</body>
+</html>
