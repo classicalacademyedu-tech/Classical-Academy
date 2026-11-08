@@ -1,19 +1,31 @@
 "use strict";
-const SUPABASE_URL = "https://fskfjvyetjuofappxqnw.supabase.co";
-const SUPABASE_KEY = "sb_publishable_m07iz_JW12ynejlP3hXVJQ_wzuXq_4X";
+
+/* =========================================
+   CLASSICAL ACADEMY
+   SUPABASE ADMIN PANEL
+========================================= */
+
+const SUPABASE_URL =
+  "https://fskfjvyetjuofappxqnw.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_m07iz_JW12ynejlP3hXVJQ_wzuXq_4X";
 
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
-/* =========================================
-   CLASSICAL ACADEMY ADMIN PANEL
-   Frontend Demo Version
-========================================= */
 
 const content = document.getElementById("content");
 const pageTitle = document.getElementById("pageTitle");
 const roleSelect = document.getElementById("roleSelect");
+
+let currentRole = "";
+let currentUser = null;
+let currentProfile = null;
+let currentPage = "dashboard";
+let welcomeData = {};
+let settingsData = {};
 
 const ROLES = {
   superadmin: {
@@ -38,17 +50,13 @@ const ROLES = {
   moderator: {
     name: "Moderator",
     title: "Content Moderator",
-    pages: [
-      "dashboard", "students", "moderation", "activity"
-    ]
+    pages: ["dashboard", "students", "moderation", "activity"]
   },
 
   teacher: {
     name: "Teacher",
     title: "Course Teacher",
-    pages: [
-      "dashboard", "courses", "exams"
-    ]
+    pages: ["dashboard", "courses", "exams"]
   }
 };
 
@@ -67,46 +75,7 @@ const PAGE_NAMES = {
 };
 
 /* =========================================
-   DEMO DATA
-========================================= */
-
-let students = [
-  { id: 1, name: "Rahim Ahmed", email: "rahim@gmail.com", className: "Class 10", status: "Active" },
-  { id: 2, name: "Nusrat Jahan", email: "nusrat@gmail.com", className: "Class 9", status: "Active" },
-  { id: 3, name: "Sakib Hasan", email: "sakib@gmail.com", className: "Class 8", status: "Pending" },
-  { id: 4, name: "Mim Akter", email: "mim@gmail.com", className: "Class 10", status: "Active" }
-];
-
-let teachers = [
-  { id: 1, name: "Abdullah Sir", subject: "Mathematics", status: "Active" },
-  { id: 2, name: "Nusrat Ma'am", subject: "English", status: "Active" },
-  { id: 3, name: "Karim Sir", subject: "Physics", status: "Pending" }
-];
-
-let courses = [
-  { id: 1, name: "SSC Mathematics", teacher: "Abdullah Sir", students: 250, status: "Active" },
-  { id: 2, name: "English Grammar", teacher: "Nusrat Ma'am", students: 180, status: "Active" },
-  { id: 3, name: "Physics Masterclass", teacher: "Karim Sir", students: 120, status: "Pending" }
-];
-
-let staff = [
-  { id: 1, name: "System Owner", email: "owner@classicalacademy.com", role: "Super Admin", status: "Active" },
-  { id: 2, name: "Admin One", email: "admin@classicalacademy.com", role: "Admin", status: "Active" },
-  { id: 3, name: "Moderator One", email: "moderator@classicalacademy.com", role: "Moderator", status: "Active" },
-  { id: 4, name: "Teacher One", email: "teacher@classicalacademy.com", role: "Teacher", status: "Active" }
-];
-
-let activities = [
-  "Admin Panel initialized",
-  "Dashboard opened",
-  "Classical Academy management system started"
-];
-
-let currentRole = "";
-let currentPage = "dashboard";
-
-/* =========================================
-   HELPER FUNCTIONS
+   HELPERS
 ========================================= */
 
 function escapeHTML(value) {
@@ -119,38 +88,64 @@ function escapeHTML(value) {
   })[char]);
 }
 
-function getRole() {
-  return ROLES[currentRole];
-}
-
-function canAccess(page) {
-  return getRole().pages.includes(page);
+function money(value) {
+  return "৳" + Number(value || 0).toLocaleString("en-BD");
 }
 
 function notify(message) {
   alert(message);
 }
 
-function addActivity(message) {
-  activities.unshift(message);
-  activities = activities.slice(0, 100);
+function getRole() {
+  return ROLES[currentRole] || ROLES.student;
 }
 
-function requireAccess(page) {
-  if (!canAccess(page)) {
-    content.innerHTML = forbidden();
-    return false;
-  }
-  return true;
+function canAccess(page) {
+  return Boolean(getRole().pages?.includes(page));
+}
+
+function forbidden() {
+  return `
+    <div class="panel empty">
+      <h2>⛔ Access Denied</h2>
+      <p>You do not have permission to access this page.</p>
+    </div>
+  `;
+}
+
+function errorPage(message) {
+  return `
+    <div class="panel empty">
+      <h3>Could not load data</h3>
+      <p>${escapeHTML(message)}</p>
+      <button class="btn" data-action="refresh">Try Again</button>
+    </div>
+  `;
+}
+
+function emptyRow(columns, message = "No records found.") {
+  return `
+    <tr>
+      <td colspan="${columns}" style="text-align:center;padding:25px">
+        ${escapeHTML(message)}
+      </td>
+    </tr>
+  `;
 }
 
 function statusBadge(status) {
+  const value = String(status || "Unknown");
   let css = "";
 
-  if (status === "Pending") css = "pending";
-  if (status === "Blocked" || status === "Suspended") css = "blocked";
+  if (["paid", "published", "active", "resolved"].includes(value.toLowerCase())) {
+    css = "";
+  } else if (["pending", "draft", "reviewing"].includes(value.toLowerCase())) {
+    css = "pending";
+  } else {
+    css = "blocked";
+  }
 
-  return `<span class="status ${css}">${escapeHTML(status)}</span>`;
+  return `<span class="status ${css}">${escapeHTML(value)}</span>`;
 }
 
 function statCard(label, value, icon, description) {
@@ -166,286 +161,23 @@ function statCard(label, value, icon, description) {
   `;
 }
 
-/* =========================================
-   ROLE MANAGEMENT
-========================================= */
-
-function updateRole() {
-  const role = getRole();
-
-  document.getElementById("sideName").textContent = role.name;
-  document.getElementById("sideRole").textContent = role.title;
-
-  document.getElementById("avatar").textContent =
-    role.name.split(" ").map(word => word[0]).join("");
-
-  document.querySelectorAll(".nav-link").forEach(link => {
-    const page = link.dataset.page;
-    link.style.display = canAccess(page) ? "flex" : "none";
-  });
-
-  if (!canAccess(currentPage)) {
-    currentPage = "dashboard";
-  }
-
-  showPage(currentPage);
-}
-
-/* =========================================
-   DASHBOARD
-========================================= */
-
-function dashboard() {
-  let stats = "";
-
-  if (currentRole === "superadmin" || currentRole === "admin") {
-    stats = [
-      statCard("Total Students", students.length.toLocaleString(), "♙", "Registered students"),
-      statCard("Total Teachers", teachers.length.toLocaleString(), "♟", "Teaching staff"),
-      statCard("Total Courses", courses.length.toLocaleString(), "▤", "Available courses"),
-      statCard("Total Revenue", "৳1,25,000", "৳", "Demo statistics")
-    ].join("");
-  }
-
-  if (currentRole === "moderator") {
-    stats = [
-      statCard("New Reports", "18", "⚑", "Demo reports"),
-      statCard("Open Complaints", "12", "✉", "Support requests"),
-      statCard("Reviewed Items", "120", "✓", "Demo statistics"),
-      statCard("Flagged Accounts", "5", "♙", "Needs attention")
-    ].join("");
-  }
-
-  if (currentRole === "teacher") {
-    stats = [
-      statCard("My Courses", "4", "▤", "Assigned courses"),
-      statCard("My Students", "320", "♙", "Demo students"),
-      statCard("Assignments", "28", "✎", "Demo statistics"),
-      statCard("Pending Results", "8", "◷", "Need grading")
-    ].join("");
-  }
-
-  return `
-    <div class="page-heading">
-      <div>
-        <h3>Welcome, ${escapeHTML(getRole().name)} 👋</h3>
-        <p>Welcome to Classical Academy Management System.</p>
-      </div>
-      <button class="btn" onclick="showPage('dashboard')">↻ Refresh</button>
-    </div>
-
-    <div class="stats-grid">${stats}</div>
-
-    <div class="dashboard-grid">
-      <div class="panel">
-        <h3>Platform Overview</h3>
-        <div class="bar-chart">
-          ${[45, 75, 55, 90, 65, 80, 60].map((height, i) => `
-            <div class="bar-item">
-              <div class="bar" style="height:${height}%"></div>
-              ${["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"][i]}
-            </div>
-          `).join("")}
-        </div>
-        <p style="color:#858298;font-size:11px">
-          Demo chart. Connect a database for real statistics.
-        </p>
-      </div>
-
-      <div class="panel">
-        <h3>Recent Activities</h3>
-        ${activities.slice(0, 5).map(item => `
-          <div class="activity-item">
-            <span class="activity-dot"></span>
-            <div>${escapeHTML(item)}<small>Recent activity</small></div>
-          </div>
-        `).join("")}
-      </div>
-    </div>
-
-    <div class="panel" style="margin-top:18px">
-      <h3>Quick Actions</h3>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        ${canAccess("welcome") ? `<button class="btn" onclick="showPage('welcome')">Edit Welcome Page</button>` : ""}
-        ${canAccess("students") ? `<button class="btn btn-light" onclick="showPage('students')">Students</button>` : ""}
-        ${canAccess("courses") ? `<button class="btn btn-light" onclick="showPage('courses')">Courses</button>` : ""}
-        ${canAccess("exams") ? `<button class="btn btn-light" onclick="showPage('exams')">Exams</button>` : ""}
-        ${canAccess("moderation") ? `<button class="btn btn-light" onclick="showPage('moderation')">Moderation</button>` : ""}
-      </div>
-    </div>
-  `;
-}
-
-/* =========================================
-   WELCOME PAGE EDITOR
-   SUPER ADMIN ONLY
-========================================= */
-
-const defaultWelcome = {
-  title: "Welcome to Classical Academy",
-  subtitle: "Learn Better, Grow Faster",
-  logo: "",
-  banner: "",
-  loginText: "Login",
-  registerText: "Get Started",
-  notice: "Your learning journey starts here.",
-  color: "#6842d9"
-};
-
-function getWelcomeData() {
-  try {
-    const saved = localStorage.getItem("ca_welcome_page");
-    return saved ? { ...defaultWelcome, ...JSON.parse(saved) } : { ...defaultWelcome };
-  } catch {
-    return { ...defaultWelcome };
-  }
-}
-
-function welcomePageEditor() {
-  if (currentRole !== "superadmin") return forbidden();
-
-  const data = getWelcomeData();
-
-  return `
-    <div class="page-heading">
-      <div>
-        <h3>Welcome Page Editor</h3>
-        <p>Control your public Classical Academy welcome page.</p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <form id="welcomeForm">
-        <div class="form-grid">
-
-          <div class="form-group">
-            <label>Welcome Title</label>
-            <input id="welcomeTitle" value="${escapeHTML(data.title)}" required>
-          </div>
-
-          <div class="form-group">
-            <label>Subtitle</label>
-            <input id="welcomeSubtitle" value="${escapeHTML(data.subtitle)}">
-          </div>
-
-          <div class="form-group">
-            <label>Logo Image URL</label>
-            <input id="welcomeLogo" value="${escapeHTML(data.logo)}" placeholder="https://example.com/logo.png">
-          </div>
-
-          <div class="form-group">
-            <label>Banner Image URL</label>
-            <input id="welcomeBanner" value="${escapeHTML(data.banner)}" placeholder="https://example.com/banner.jpg">
-          </div>
-
-          <div class="form-group">
-            <label>Login Button Text</label>
-            <input id="loginText" value="${escapeHTML(data.loginText)}">
-          </div>
-
-          <div class="form-group">
-            <label>Registration Button Text</label>
-            <input id="registerText" value="${escapeHTML(data.registerText)}">
-          </div>
-
-          <div class="form-group">
-            <label>Announcement</label>
-            <textarea id="welcomeNotice">${escapeHTML(data.notice)}</textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Theme Color</label>
-            <input type="color" id="welcomeColor" value="${escapeHTML(data.color)}">
-          </div>
-
-        </div>
-
-        <br>
-
-        <button class="btn" type="submit">Save Welcome Page</button>
-        <button class="btn btn-light" type="button" onclick="previewWelcome()">Preview</button>
-      </form>
-    </div>
-
-    <div class="panel" style="margin-top:20px">
-      <h3>Live Preview</h3>
-      <div id="welcomePreview"></div>
-    </div>
-  `;
-}
-
-function previewWelcome() {
-  const title = document.getElementById("welcomeTitle")?.value || "";
-  const subtitle = document.getElementById("welcomeSubtitle")?.value || "";
-  const logo = document.getElementById("welcomeLogo")?.value || "";
-  const banner = document.getElementById("welcomeBanner")?.value || "";
-  const login = document.getElementById("loginText")?.value || "Login";
-  const register = document.getElementById("registerText")?.value || "Get Started";
-  const notice = document.getElementById("welcomeNotice")?.value || "";
-  const color = document.getElementById("welcomeColor")?.value || "#6842d9";
-
-  const preview = document.getElementById("welcomePreview");
-  if (!preview) return;
-
-  preview.innerHTML = `
-    <div style="text-align:center;padding:20px;background:#f7f5ff;border-radius:14px">
-      ${logo ? `<img src="${escapeHTML(logo)}" alt="Logo" style="width:65px;height:65px;object-fit:contain">` : ""}
-      ${banner ? `<img src="${escapeHTML(banner)}" alt="Banner" style="width:100%;max-height:170px;object-fit:cover;border-radius:12px">` : ""}
-      <h2 style="color:${escapeHTML(color)}">${escapeHTML(title)}</h2>
-      <p>${escapeHTML(subtitle)}</p>
-      <p>${escapeHTML(notice)}</p>
-      <button class="btn" style="background:${escapeHTML(color)}">${escapeHTML(login)}</button>
-      <button class="btn btn-light">${escapeHTML(register)}</button>
-    </div>
-  `;
-}
-
-function saveWelcomePage(event) {
-  event.preventDefault();
-
-  if (currentRole !== "superadmin") {
-    return notify("Access denied.");
-  }
-
-  const data = {
-    title: document.getElementById("welcomeTitle").value.trim(),
-    subtitle: document.getElementById("welcomeSubtitle").value.trim(),
-    logo: document.getElementById("welcomeLogo").value.trim(),
-    banner: document.getElementById("welcomeBanner").value.trim(),
-    loginText: document.getElementById("loginText").value.trim(),
-    registerText: document.getElementById("registerText").value.trim(),
-    notice: document.getElementById("welcomeNotice").value.trim(),
-    color: document.getElementById("welcomeColor").value
-  };
-
-  try {
-    localStorage.setItem("ca_welcome_page", JSON.stringify(data));
-    addActivity("Super Admin saved Welcome Page settings");
-    previewWelcome();
-    notify("Welcome Page settings saved in this browser.");
-  } catch {
-    notify("Could not save settings.");
-  }
-}
-
-/* =========================================
-   TABLE GENERATOR
-========================================= */
-
 function makeTable(headers, rows) {
   return `
     <div class="table-card">
       <div class="table-head">
         <h3>Records</h3>
-        <input class="search" id="tableSearch" placeholder="Search records...">
+        <input class="search" id="tableSearch"
+          placeholder="Search records...">
       </div>
 
       <div class="table-wrap">
         <table id="dataTable">
           <thead>
-            <tr>${headers.map(h => `<th>${escapeHTML(h)}</th>`).join("")}</tr>
+            <tr>
+              ${headers.map(h => `<th>${escapeHTML(h)}</th>`).join("")}
+            </tr>
           </thead>
-          <tbody>${rows}</tbody>
+          <tbody>${rows || emptyRow(headers.length)}</tbody>
         </table>
       </div>
     </div>
@@ -462,368 +194,1129 @@ function attachSearch() {
     const term = search.value.toLowerCase();
 
     table.querySelectorAll("tbody tr").forEach(row => {
-      row.style.display = row.innerText.toLowerCase().includes(term) ? "" : "none";
+      row.style.display =
+        row.innerText.toLowerCase().includes(term) ? "" : "none";
     });
   });
+}
+
+async function logActivity(action, details = {}) {
+  // Existing database policies only allow Super Admin to insert logs.
+  if (currentRole !== "superadmin") return;
+
+  const { error } = await supabaseClient
+    .from("activity_logs")
+    .insert({
+      user_id: currentUser.id,
+      action,
+      details
+    });
+
+  if (error) console.error("Activity log:", error.message);
+}
+
+async function getCount(table, query = {}) {
+  let request = supabaseClient
+    .from(table)
+    .select("*", { count: "exact", head: true });
+
+  Object.entries(query).forEach(([key, value]) => {
+    request = request.eq(key, value);
+  });
+
+  const { count, error } = await request;
+
+  if (error) throw error;
+
+  return count || 0;
+}
+
+async function getRows(table, columns = "*", options = {}) {
+  let request = supabaseClient.from(table).select(columns);
+
+  if (options.filters) {
+    Object.entries(options.filters).forEach(([key, value]) => {
+      request = request.eq(key, value);
+    });
+  }
+
+  if (options.order) {
+    request = request.order(
+      options.order,
+      { ascending: options.ascending ?? false }
+    );
+  }
+
+  if (options.limit) request = request.limit(options.limit);
+
+  const { data, error } = await request;
+
+  if (error) throw error;
+
+  return data || [];
+}
+
+async function saveSetting(key, value) {
+  const { error } = await supabaseClient
+    .from("site_settings")
+    .upsert(
+      {
+        setting_key: key,
+        setting_value: value,
+        updated_at: new Date().toISOString()
+      },
+      { onConflict: "setting_key" }
+    );
+
+  if (error) throw error;
+}
+
+async function loadSetting(key) {
+  const { data, error } = await supabaseClient
+    .from("site_settings")
+    .select("setting_value")
+    .eq("setting_key", key)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data?.setting_value || {};
+}
+
+/* =========================================
+   ROLE MANAGEMENT
+========================================= */
+
+function updateRole() {
+  const role = getRole();
+
+  const sideName = document.getElementById("sideName");
+  const sideRole = document.getElementById("sideRole");
+  const avatar = document.getElementById("avatar");
+
+  if (sideName) {
+    sideName.textContent =
+      currentProfile?.full_name || role.name;
+  }
+
+  if (sideRole) sideRole.textContent = role.title;
+
+  if (avatar) {
+    avatar.textContent = (
+      currentProfile?.full_name || role.name
+    )
+      .split(" ")
+      .map(word => word[0])
+      .join("")
+      .toUpperCase();
+  }
+
+  document.querySelectorAll(".nav-link").forEach(link => {
+    link.style.display = canAccess(link.dataset.page)
+      ? "flex"
+      : "none";
+  });
+
+  if (!canAccess(currentPage)) currentPage = "dashboard";
+
+  showPage(currentPage);
+}
+
+/* =========================================
+   DASHBOARD
+========================================= */
+
+async function dashboard() {
+  const stats = [];
+
+  try {
+    if (["superadmin", "admin"].includes(currentRole)) {
+      const [students, teachers, courses, payments] =
+        await Promise.all([
+          getCount("profiles", { role: "student" }),
+          getCount("profiles", { role: "teacher" }),
+          getCount("courses"),
+          getRows("payments", "amount,status")
+        ]);
+
+      const revenue = payments
+        .filter(p => p.status === "paid")
+        .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+      stats.push(
+        statCard("Total Students", students, "♙", "Registered students"),
+        statCard("Total Teachers", teachers, "♟", "Teaching staff"),
+        statCard("Total Courses", courses, "▤", "Database courses"),
+        statCard("Total Revenue", money(revenue), "৳", "Recorded paid payments")
+      );
+    } else if (currentRole === "teacher") {
+      const [courses, exams] = await Promise.all([
+        getCount("courses", { teacher_id: currentUser.id }),
+        getCount("exams", { status: "published" })
+      ]);
+
+      stats.push(
+        statCard("My Courses", courses, "▤", "Assigned courses"),
+        statCard("Published Exams", exams, "✎", "Published examinations")
+      );
+    } else {
+      const reports = await getRows("moderation_reports", "id,status");
+
+      stats.push(
+        statCard(
+          "New Reports",
+          reports.filter(r => r.status === "pending").length,
+          "⚑",
+          "Pending reports"
+        ),
+        statCard(
+          "Under Review",
+          reports.filter(r => r.status === "reviewing").length,
+          "◷",
+          "Reports being reviewed"
+        ),
+        statCard(
+          "Resolved",
+          reports.filter(r => r.status === "resolved").length,
+          "✓",
+          "Resolved reports"
+        )
+      );
+    }
+
+    let recent = [];
+
+    if (currentRole === "superadmin") {
+      recent = await getRows(
+        "activity_logs",
+        "action,created_at",
+        { order: "created_at", limit: 5 }
+      );
+    }
+
+    return `
+      <div class="page-heading">
+        <div>
+          <h3>Welcome, ${escapeHTML(
+            currentProfile?.full_name || getRole().name
+          )} 👋</h3>
+          <p>Classical Academy Management System</p>
+        </div>
+        <button class="btn" data-action="refresh">↻ Refresh</button>
+      </div>
+
+      <div class="stats-grid">${stats.join("")}</div>
+
+      <div class="panel" style="margin-top:18px">
+        <h3>Recent Activities</h3>
+        ${
+          recent.length
+            ? recent.map(item => `
+              <div class="activity-item">
+                <span class="activity-dot"></span>
+                <div>
+                  ${escapeHTML(item.action)}
+                  <small>${new Date(item.created_at).toLocaleString()}</small>
+                </div>
+              </div>
+            `).join("")
+            : `<p>No activity records available.</p>`
+        }
+      </div>
+    `;
+  } catch (error) {
+    return errorPage(error.message);
+  }
 }
 
 /* =========================================
    STUDENTS
 ========================================= */
 
-function studentsPage() {
-  const rows = students.map(s => `
-    <tr>
-      <td>${escapeHTML(s.name)}</td>
-      <td>${escapeHTML(s.email)}</td>
-      <td>${escapeHTML(s.className)}</td>
-      <td>${statusBadge(s.status)}</td>
-      <td>
-        ${currentRole !== "moderator"
-          ? `<button class="btn btn-light" onclick="toggleStudent(${s.id})">${s.status === "Active" ? "Suspend" : "Activate"}</button>`
-          : "View only"}
-      </td>
-    </tr>
-  `).join("");
+async function studentsPage() {
+  if (!["superadmin", "admin"].includes(currentRole)) {
+    return forbidden();
+  }
 
-  return `
-    <div class="page-heading">
-      <div><h3>Student Management</h3><p>Manage student accounts.</p></div>
-      ${currentRole !== "moderator" ? `<button class="btn" onclick="addStudent()">+ Add Student</button>` : ""}
-    </div>
-    ${makeTable(["Name", "Email", "Class", "Status", "Action"], rows)}
-  `;
-}
+  try {
+    const students = await getRows(
+      "profiles",
+      "id,full_name,email,username,phone,class_level,student_group,created_at",
+      {
+        filters: { role: "student" },
+        order: "created_at"
+      }
+    );
 
-function addStudent() {
-  if (!["superadmin", "admin"].includes(currentRole)) return forbidden();
+    const rows = students.map(student => `
+      <tr>
+        <td>${escapeHTML(student.full_name || "—")}</td>
+        <td>${escapeHTML(student.email || "—")}</td>
+        <td>${escapeHTML(student.class_level || "—")}</td>
+        <td>${escapeHTML(student.student_group || "—")}</td>
+        <td>${escapeHTML(student.phone || "—")}</td>
+        <td>${new Date(student.created_at).toLocaleDateString()}</td>
+      </tr>
+    `).join("");
 
-  const name = prompt("Student full name:");
-  if (!name?.trim()) return;
+    return `
+      <div class="page-heading">
+        <div>
+          <h3>Student Management</h3>
+          <p>Real registered student accounts.</p>
+        </div>
+        <button class="btn" data-action="student-info">
+          Add Student
+        </button>
+      </div>
 
-  const email = prompt("Student email:");
-  if (!email?.trim()) return;
+      ${makeTable(
+        ["Name", "Email", "Class", "Group", "Phone", "Joined"],
+        rows
+      )}
 
-  const className = prompt("Student class (Class 6-10):") || "Not assigned";
-
-  students.push({
-    id: Date.now(),
-    name: name.trim(),
-    email: email.trim(),
-    className,
-    status: "Pending"
-  });
-
-  addActivity("A demo student was added");
-  showPage("students");
-}
-
-function toggleStudent(id) {
-  if (!["superadmin", "admin"].includes(currentRole)) return forbidden();
-
-  const student = students.find(s => s.id === id);
-  if (!student) return;
-
-  student.status = student.status === "Active" ? "Suspended" : "Active";
-
-  addActivity("Student account status changed");
-  showPage("students");
+      <p style="font-size:12px;color:#858298;margin-top:12px">
+        New student account creation will be enabled through a secure
+        server-side invitation function.
+      </p>
+    `;
+  } catch (error) {
+    return errorPage(error.message);
+  }
 }
 
 /* =========================================
    TEACHERS
 ========================================= */
 
-function teachersPage() {
-  const rows = teachers.map(t => `
-    <tr>
-      <td>${escapeHTML(t.name)}</td>
-      <td>${escapeHTML(t.subject)}</td>
-      <td>${statusBadge(t.status)}</td>
-      <td><button class="btn btn-light" onclick="notify('Teacher: ${escapeHTML(t.name)}')">View</button></td>
-    </tr>
-  `).join("");
+async function teachersPage() {
+  if (!["superadmin", "admin"].includes(currentRole)) {
+    return forbidden();
+  }
 
-  return `
-    <div class="page-heading">
-      <div><h3>Teacher Management</h3><p>Manage academy teachers.</p></div>
-      <button class="btn" onclick="addTeacher()">+ Add Teacher</button>
-    </div>
-    ${makeTable(["Teacher", "Subject", "Status", "Action"], rows)}
-  `;
-}
+  try {
+    const teachers = await getRows(
+      "profiles",
+      "id,full_name,email,phone,subject,created_at",
+      {
+        filters: { role: "teacher" },
+        order: "created_at"
+      }
+    );
 
-function addTeacher() {
-  if (!["superadmin", "admin"].includes(currentRole)) return forbidden();
+    const rows = teachers.map(teacher => `
+      <tr>
+        <td>${escapeHTML(teacher.full_name || "—")}</td>
+        <td>${escapeHTML(teacher.email || "—")}</td>
+        <td>${escapeHTML(teacher.subject || "—")}</td>
+        <td>${escapeHTML(teacher.phone || "—")}</td>
+        <td>${new Date(teacher.created_at).toLocaleDateString()}</td>
+      </tr>
+    `).join("");
 
-  const name = prompt("Teacher name:");
-  if (!name?.trim()) return;
+    return `
+      <div class="page-heading">
+        <div>
+          <h3>Teacher Management</h3>
+          <p>Registered teachers from Supabase.</p>
+        </div>
+        <button class="btn" data-action="teacher-info">
+          Add Teacher
+        </button>
+      </div>
 
-  const subject = prompt("Teacher subject:");
-  if (!subject?.trim()) return;
+      ${makeTable(
+        ["Name", "Email", "Subject", "Phone", "Joined"],
+        rows
+      )}
 
-  teachers.push({
-    id: Date.now(),
-    name: name.trim(),
-    subject: subject.trim(),
-    status: "Pending"
-  });
-
-  addActivity("A demo teacher was added");
-  showPage("teachers");
+      <p style="font-size:12px;color:#858298;margin-top:12px">
+        Teacher account creation requires the secure staff invitation function.
+      </p>
+    `;
+  } catch (error) {
+    return errorPage(error.message);
+  }
 }
 
 /* =========================================
    COURSES
 ========================================= */
 
-function coursesPage() {
-  const visibleCourses = currentRole === "teacher"
-    ? courses.filter(c => c.teacher === "Abdullah Sir")
-    : courses;
+async function coursesPage() {
+  try {
+    const courses = await getRows(
+      "courses",
+      "id,title,description,class_level,subject,price,status,teacher_id,created_at",
+      {
+        filters: currentRole === "teacher"
+          ? { teacher_id: currentUser.id }
+          : {},
+        order: "created_at"
+      }
+    );
 
-  const rows = visibleCourses.map(c => `
-    <tr>
-      <td>${escapeHTML(c.name)}</td>
-      <td>${escapeHTML(c.teacher)}</td>
-      <td>${c.students}</td>
-      <td>${statusBadge(c.status)}</td>
-      <td><button class="btn btn-light" onclick="notify('Course: ${escapeHTML(c.name)}')">Manage</button></td>
-    </tr>
-  `).join("");
+    const teacherIds = [...new Set(
+      courses.map(c => c.teacher_id).filter(Boolean)
+    )];
 
-  return `
-    <div class="page-heading">
-      <div><h3>${currentRole === "teacher" ? "My Courses" : "Course Management"}</h3><p>Manage courses and lessons.</p></div>
-      <button class="btn" onclick="addCourse()">+ Create Course</button>
-    </div>
-    ${makeTable(["Course", "Teacher", "Students", "Status", "Action"], rows)}
-  `;
+    let teacherMap = {};
+
+    if (teacherIds.length) {
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("id,full_name")
+        .in("id", teacherIds);
+
+      if (!error) {
+        (data || []).forEach(t => {
+          teacherMap[t.id] = t.full_name;
+        });
+      }
+    }
+
+    const rows = courses.map(course => `
+      <tr>
+        <td>${escapeHTML(course.title)}</td>
+        <td>${escapeHTML(teacherMap[course.teacher_id] || "—")}</td>
+        <td>${escapeHTML(course.class_level || "—")}</td>
+        <td>${money(course.price)}</td>
+        <td>${statusBadge(course.status)}</td>
+        <td>
+          <button class="btn btn-light"
+            data-action="edit-course"
+            data-id="${course.id}">
+            Edit
+          </button>
+          ${
+            ["superadmin", "admin"].includes(currentRole)
+              ? `<button class="btn btn-light"
+                  data-action="delete-course"
+                  data-id="${course.id}">
+                  Delete
+                </button>`
+              : ""
+          }
+        </td>
+      </tr>
+    `).join("");
+
+    return `
+      <div class="page-heading">
+        <div>
+          <h3>${currentRole === "teacher" ? "My Courses" : "Course Management"}</h3>
+          <p>Manage real database courses.</p>
+        </div>
+        <button class="btn" data-action="add-course">
+          + Create Course
+        </button>
+      </div>
+
+      ${makeTable(
+        ["Course", "Teacher", "Class", "Price", "Status", "Action"],
+        rows
+      )}
+    `;
+  } catch (error) {
+    return errorPage(error.message);
+  }
 }
 
-function addCourse() {
-  if (!["superadmin", "admin", "teacher"].includes(currentRole)) return forbidden();
+async function addCourse() {
+  if (!["superadmin", "admin", "teacher"].includes(currentRole)) {
+    return notify("Access denied.");
+  }
 
-  const name = prompt("Course name:");
-  if (!name?.trim()) return;
+  const title = prompt("Course title:");
+  if (!title?.trim()) return;
 
-  const teacher = currentRole === "teacher"
-    ? "Abdullah Sir"
-    : prompt("Teacher name:") || "Not assigned";
+  const description = prompt("Course description:") || "";
+  const classLevel = prompt("Class level:") || "";
+  const subject = prompt("Subject:") || "";
+  const priceText = prompt("Course price (BDT):", "0");
 
-  courses.push({
-    id: Date.now(),
-    name: name.trim(),
-    teacher,
-    students: 0,
-    status: "Pending"
-  });
+  const price = Number(priceText);
 
-  addActivity("A demo course was created");
+  if (!Number.isFinite(price) || price < 0) {
+    return notify("Invalid course price.");
+  }
+
+  const course = {
+    title: title.trim(),
+    description: description.trim(),
+    class_level: classLevel.trim(),
+    subject: subject.trim(),
+    price,
+    status: "draft",
+    teacher_id: currentRole === "teacher"
+      ? currentUser.id
+      : null
+  };
+
+  if (currentRole !== "teacher") {
+    const teacherEmail = prompt(
+      "Assigned teacher email (optional):"
+    );
+
+    if (teacherEmail?.trim()) {
+      const { data: teacher, error } = await supabaseClient
+        .from("profiles")
+        .select("id")
+        .eq("email", teacherEmail.trim())
+        .eq("role", "teacher")
+        .maybeSingle();
+
+      if (error) return notify(error.message);
+
+      if (!teacher) return notify("Teacher account not found.");
+
+      course.teacher_id = teacher.id;
+    }
+  }
+
+  const { error } = await supabaseClient
+    .from("courses")
+    .insert(course);
+
+  if (error) return notify(error.message);
+
+  await logActivity("Course created", { title: course.title });
+
+  notify("Course created successfully.");
+  showPage("courses");
+}
+
+async function editCourse(id) {
+  const { data: course, error } = await supabaseClient
+    .from("courses")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) return notify(error.message);
+
+  const title = prompt("Course title:", course.title);
+  if (!title?.trim()) return;
+
+  const description = prompt(
+    "Course description:",
+    course.description || ""
+  );
+
+  const priceText = prompt(
+    "Price (BDT):",
+    String(course.price || 0)
+  );
+
+  const price = Number(priceText);
+
+  if (!Number.isFinite(price) || price < 0) {
+    return notify("Invalid price.");
+  }
+
+  const status = prompt(
+    "Status: draft, published, archived",
+    course.status
+  );
+
+  if (!["draft", "published", "archived"].includes(status)) {
+    return notify("Invalid status.");
+  }
+
+  const { error: updateError } = await supabaseClient
+    .from("courses")
+    .update({
+      title: title.trim(),
+      description: description || "",
+      price,
+      status,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", id);
+
+  if (updateError) return notify(updateError.message);
+
+  await logActivity("Course updated", { id, title });
+
+  notify("Course updated.");
+  showPage("courses");
+}
+
+async function deleteCourse(id) {
+  if (!["superadmin", "admin"].includes(currentRole)) {
+    return notify("Access denied.");
+  }
+
+  if (!confirm("Delete this course and its lessons?")) return;
+
+  const { error } = await supabaseClient
+    .from("courses")
+    .delete()
+    .eq("id", id);
+
+  if (error) return notify(error.message);
+
+  await logActivity("Course deleted", { id });
+
+  notify("Course deleted.");
   showPage("courses");
 }
 
 /* =========================================
-   EXAMS & RESULTS
+   EXAMS
 ========================================= */
 
-function examsPage() {
-  return `
-    <div class="page-heading">
-      <div><h3>Exams & Results</h3><p>Manage quizzes, exams and results.</p></div>
-      <button class="btn" onclick="notify('Exam creation backend is not connected yet.')">+ Create Exam</button>
-    </div>
+async function examsPage() {
+  try {
+    const exams = await getRows(
+      "exams",
+      "id,title,description,course_id,duration_minutes,total_marks,status,start_at,end_at,created_at",
+      { order: "created_at" }
+    );
 
-    <div class="stats-grid">
-      ${statCard("Total Exams", "24", "✎", "Demo data")}
-      ${statCard("Published Results", "18", "✓", "Demo data")}
-      ${statCard("Pending Review", "8", "◷", "Demo data")}
-      ${statCard("Submissions", "560", "▤", "Demo data")}
-    </div>
+    const rows = exams.map(exam => `
+      <tr>
+        <td>${escapeHTML(exam.title)}</td>
+        <td>${escapeHTML(exam.duration_minutes)}</td>
+        <td>${escapeHTML(exam.total_marks)}</td>
+        <td>${statusBadge(exam.status)}</td>
+        <td>
+          ${
+            ["superadmin", "admin"].includes(currentRole)
+              ? `<button class="btn btn-light"
+                  data-action="delete-exam"
+                  data-id="${exam.id}">
+                  Delete
+                </button>`
+              : "View"
+          }
+        </td>
+      </tr>
+    `).join("");
 
-    <div class="panel">
-      <h3>Exam Management</h3>
-      <p style="font-size:13px;color:#858298">
-        Question management, grading and result publishing will be connected to the backend.
-      </p>
-    </div>
-  `;
+    return `
+      <div class="page-heading">
+        <div>
+          <h3>Exams & Results</h3>
+          <p>Database examination records.</p>
+        </div>
+
+        ${
+          ["superadmin", "admin"].includes(currentRole)
+            ? `<button class="btn" data-action="add-exam">+ Create Exam</button>`
+            : ""
+        }
+      </div>
+
+      ${makeTable(
+        ["Exam", "Duration (min)", "Total Marks", "Status", "Action"],
+        rows
+      )}
+    `;
+  } catch (error) {
+    return errorPage(error.message);
+  }
+}
+
+async function addExam() {
+  if (!["superadmin", "admin"].includes(currentRole)) {
+    return notify("Access denied.");
+  }
+
+  const title = prompt("Exam title:");
+  if (!title?.trim()) return;
+
+  const duration = Number(prompt("Duration in minutes:", "30"));
+  const marks = Number(prompt("Total marks:", "100"));
+
+  if (
+    !Number.isFinite(duration) || duration <= 0 ||
+    !Number.isFinite(marks) || marks <= 0
+  ) {
+    return notify("Invalid duration or marks.");
+  }
+
+  const { error } = await supabaseClient
+    .from("exams")
+    .insert({
+      title: title.trim(),
+      duration_minutes: duration,
+      total_marks: marks,
+      status: "draft"
+    });
+
+  if (error) return notify(error.message);
+
+  await logActivity("Exam created", { title });
+
+  notify("Exam created as draft.");
+  showPage("exams");
+}
+
+async function deleteExam(id) {
+  if (!["superadmin", "admin"].includes(currentRole)) return;
+
+  if (!confirm("Delete this exam?")) return;
+
+  const { error } = await supabaseClient
+    .from("exams")
+    .delete()
+    .eq("id", id);
+
+  if (error) return notify(error.message);
+
+  notify("Exam deleted.");
+  showPage("exams");
 }
 
 /* =========================================
    PAYMENTS
 ========================================= */
 
-function paymentsPage() {
-  if (!["superadmin", "admin"].includes(currentRole)) return forbidden();
+async function paymentsPage() {
+  if (!["superadmin", "admin"].includes(currentRole)) {
+    return forbidden();
+  }
 
-  return `
-    <div class="page-heading">
-      <div><h3>Payment Management</h3><p>Monitor payment records.</p></div>
-      <button class="btn" onclick="notify('Payment export requires backend integration.')">Export Report</button>
-    </div>
+  try {
+    const payments = await getRows(
+      "payments",
+      "id,student_id,amount,payment_method,transaction_id,status,created_at",
+      { order: "created_at" }
+    );
 
-    <div class="stats-grid">
-      ${statCard("Total Revenue", "৳1,25,000", "৳", "Demo data")}
-      ${statCard("Successful", "320", "✓", "Demo data")}
-      ${statCard("Pending", "12", "◷", "Demo data")}
-      ${statCard("Refund Requests", "3", "↶", "Demo data")}
-    </div>
+    const paid = payments.filter(p => p.status === "paid");
 
-    <div class="panel">
-      <h3>Payment Records</h3>
-      <p style="color:#858298;font-size:13px">
-        Real payment information requires a secure payment gateway and backend.
+    const revenue = paid.reduce(
+      (sum, p) => sum + Number(p.amount || 0),
+      0
+    );
+
+    const rows = payments.map(payment => `
+      <tr>
+        <td>${escapeHTML(payment.transaction_id || "—")}</td>
+        <td>${escapeHTML(payment.student_id)}</td>
+        <td>${money(payment.amount)}</td>
+        <td>${escapeHTML(payment.payment_method || "—")}</td>
+        <td>${statusBadge(payment.status)}</td>
+        <td>${new Date(payment.created_at).toLocaleDateString()}</td>
+      </tr>
+    `).join("");
+
+    return `
+      <div class="page-heading">
+        <div>
+          <h3>Payment Management</h3>
+          <p>Actual payment database records.</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        ${statCard("Total Revenue", money(revenue), "৳", "Paid records only")}
+        ${statCard("Successful", paid.length, "✓", "Paid transactions")}
+        ${statCard(
+          "Pending",
+          payments.filter(p => p.status === "pending").length,
+          "◷",
+          "Pending transactions"
+        )}
+        ${statCard("Total Transactions", payments.length, "▤", "All records")}
+      </div>
+
+      ${makeTable(
+        ["Transaction ID", "Student ID", "Amount", "Method", "Status", "Date"],
+        rows
+      )}
+
+      <p style="font-size:12px;color:#858298">
+        Payment status must be verified by a secure payment gateway.
+        This panel does not mark payments as paid.
       </p>
-    </div>
-  `;
+    `;
+  } catch (error) {
+    return errorPage(error.message);
+  }
 }
 
 /* =========================================
    MODERATION
 ========================================= */
 
-function moderationPage() {
-  return `
-    <div class="page-heading">
-      <div><h3>Moderation Center</h3><p>Review reported content and complaints.</p></div>
-    </div>
+async function moderationPage() {
+  if (!["superadmin", "admin", "moderator"].includes(currentRole)) {
+    return forbidden();
+  }
 
-    <div class="stats-grid">
-      ${statCard("New Reports", "18", "⚑", "Demo reports")}
-      ${statCard("Under Review", "7", "◷", "Demo reports")}
-      ${statCard("Resolved", "45", "✓", "Demo reports")}
-      ${statCard("Flagged Accounts", "5", "♙", "Demo reports")}
-    </div>
+  try {
+    const reports = await getRows(
+      "moderation_reports",
+      "id,reporter_id,reported_user_id,reason,description,status,created_at",
+      { order: "created_at" }
+    );
 
-    <div class="panel">
-      <h3>Reported Content</h3>
-      <p style="font-size:13px;color:#858298">
-        Reported comments, discussions and suspicious accounts will appear here after backend integration.
-      </p>
-      <button class="btn" onclick="notify('Moderation queue requires backend integration.')">Review Queue</button>
-    </div>
-  `;
+    const rows = reports.map(report => `
+      <tr>
+        <td>${escapeHTML(report.reason)}</td>
+        <td>${escapeHTML(report.reporter_id || "—")}</td>
+        <td>${escapeHTML(report.reported_user_id || "—")}</td>
+        <td>${statusBadge(report.status)}</td>
+        <td>${new Date(report.created_at).toLocaleDateString()}</td>
+        <td>
+          ${
+            ["superadmin", "admin", "moderator"].includes(currentRole)
+              ? `<button class="btn btn-light"
+                  data-action="review-report"
+                  data-id="${report.id}">
+                  Review
+                </button>`
+              : ""
+          }
+        </td>
+      </tr>
+    `).join("");
+
+    return `
+      <div class="page-heading">
+        <div>
+          <h3>Moderation Center</h3>
+          <p>Actual reported items.</p>
+        </div>
+      </div>
+
+      ${makeTable(
+        ["Reason", "Reporter", "Reported User", "Status", "Date", "Action"],
+        rows
+      )}
+    `;
+  } catch (error) {
+    return errorPage(error.message);
+  }
+}
+
+async function reviewReport(id) {
+  const status = prompt(
+    "New status: pending, reviewing, resolved, rejected",
+    "reviewing"
+  );
+
+  if (!["pending", "reviewing", "resolved", "rejected"].includes(status)) {
+    return notify("Invalid status.");
+  }
+
+  const { error } = await supabaseClient
+    .from("moderation_reports")
+    .update({ status })
+    .eq("id", id);
+
+  if (error) return notify(error.message);
+
+  notify("Report updated.");
+  showPage("moderation");
 }
 
 /* =========================================
    STAFF & ROLES
 ========================================= */
 
-function staffPage() {
+async function staffPage() {
   if (currentRole !== "superadmin") return forbidden();
 
-  const rows = staff.map(member => `
-    <tr>
-      <td>${escapeHTML(member.name)}</td>
-      <td>${escapeHTML(member.email)}</td>
-      <td>${escapeHTML(member.role)}</td>
-      <td>${statusBadge(member.status)}</td>
-      <td>
-        <button class="btn btn-light" onclick="changeStaffRole(${member.id})">Change Role</button>
-      </td>
-    </tr>
-  `).join("");
+  try {
+    const staff = await getRows(
+      "profiles",
+      "id,full_name,email,username,role,created_at",
+      { order: "created_at" }
+    );
 
-  return `
-    <div class="page-heading">
-      <div><h3>Staff & Role Management</h3><p>Super Admin can manage staff access.</p></div>
-      <button class="btn" onclick="addStaff()">+ Add Staff</button>
-    </div>
+    const members = staff.filter(member =>
+      ["superadmin", "admin", "moderator", "teacher"].includes(member.role)
+    );
 
-    ${makeTable(["Name", "Email", "Role", "Status", "Action"], rows)}
+    const rows = members.map(member => `
+      <tr>
+        <td>${escapeHTML(member.full_name || "—")}</td>
+        <td>${escapeHTML(member.email || "—")}</td>
+        <td>${escapeHTML(member.role)}</td>
+        <td>${new Date(member.created_at).toLocaleDateString()}</td>
+        <td>
+          ${
+            member.role === "superadmin"
+              ? "Protected"
+              : `<button class="btn btn-light"
+                  data-action="staff-info">
+                  Manage
+                </button>`
+          }
+        </td>
+      </tr>
+    `).join("");
 
-    <div class="panel" style="margin-top:18px">
-      <h3>Role Permissions</h3>
-      <p style="font-size:12px;color:#858298">
-        Super Admin: Full control including Welcome Page Editor.<br>
-        Admin: Academic and operational management.<br>
-        Moderator: Reports and content moderation.<br>
-        Teacher: Own courses, students and results.
-      </p>
-    </div>
-  `;
-}
+    return `
+      <div class="page-heading">
+        <div>
+          <h3>Staff & Role Management</h3>
+          <p>Real staff accounts from Supabase.</p>
+        </div>
+        <button class="btn" data-action="staff-info">
+          + Add Staff
+        </button>
+      </div>
 
-function addStaff() {
-  if (currentRole !== "superadmin") return forbidden();
+      ${makeTable(
+        ["Name", "Email", "Role", "Joined", "Action"],
+        rows
+      )}
 
-  const name = prompt("Staff full name:");
-  if (!name?.trim()) return;
-
-  const email = prompt("Staff email:");
-  if (!email?.trim()) return;
-
-  const role = prompt("Enter role: Admin, Moderator, Teacher");
-  const validRoles = ["Admin", "Moderator", "Teacher"];
-
-  if (!validRoles.includes(role)) {
-    return notify("Invalid role.");
+      <div class="panel" style="margin-top:18px">
+        <h3>Staff Account Security</h3>
+        <p>
+          Staff invitation and Role changes require a secure
+          Supabase Edge Function. Direct browser-side role changes
+          are disabled.
+        </p>
+      </div>
+    `;
+  } catch (error) {
+    return errorPage(error.message);
   }
-
-  staff.push({
-    id: Date.now(),
-    name: name.trim(),
-    email: email.trim(),
-    role,
-    status: "Active"
-  });
-
-  addActivity("A new staff member was added");
-  showPage("staff");
-}
-
-function changeStaffRole(id) {
-  if (currentRole !== "superadmin") return forbidden();
-
-  const member = staff.find(item => item.id === id);
-  if (!member) return;
-
-  if (member.role === "Super Admin") {
-    return notify("The primary Super Admin role cannot be changed here.");
-  }
-
-  const newRole = prompt("New role: Admin, Moderator, Teacher");
-  if (!["Admin", "Moderator", "Teacher"].includes(newRole)) {
-    return notify("Invalid role.");
-  }
-
-  member.role = newRole;
-  addActivity("A staff role was changed");
-  showPage("staff");
 }
 
 /* =========================================
    ACTIVITY LOGS
 ========================================= */
 
-function activityPage() {
+async function activityPage() {
+  if (!["superadmin", "admin", "moderator"].includes(currentRole)) {
+    return forbidden();
+  }
+
+  try {
+    const activities = await getRows(
+      "activity_logs",
+      "id,user_id,action,details,created_at",
+      { order: "created_at", limit: 100 }
+    );
+
+    const rows = activities.map(item => `
+      <tr>
+        <td>${escapeHTML(item.action)}</td>
+        <td>${escapeHTML(item.user_id || "—")}</td>
+        <td>${new Date(item.created_at).toLocaleString()}</td>
+      </tr>
+    `).join("");
+
+    return `
+      <div class="page-heading">
+        <div>
+          <h3>Activity Logs</h3>
+          <p>Database activity records.</p>
+        </div>
+      </div>
+
+      ${makeTable(["Action", "User ID", "Date"], rows)}
+    `;
+  } catch (error) {
+    return errorPage(error.message);
+  }
+}
+
+/* =========================================
+   WELCOME PAGE EDITOR
+========================================= */
+
+async function welcomePageEditor() {
+  if (currentRole !== "superadmin") return forbidden();
+
+  try {
+    welcomeData = await loadSetting("welcome_page");
+  } catch (error) {
+    return errorPage(error.message);
+  }
+
+  const data = {
+    title: "Welcome to Classical Academy",
+    subtitle: "Learn Better, Grow Faster",
+    logo: "",
+    banner: "",
+    loginText: "Login",
+    registerText: "Get Started",
+    notice: "",
+    color: "#6842d9",
+    ...welcomeData
+  };
+
   return `
     <div class="page-heading">
-      <div><h3>Activity Logs</h3><p>Review recent platform activity.</p></div>
+      <div>
+        <h3>Welcome Page Editor</h3>
+        <p>Manage public welcome page settings.</p>
+      </div>
     </div>
 
     <div class="panel">
-      ${activities.map(item => `
-        <div class="activity-item">
-          <span class="activity-dot"></span>
-          <div>${escapeHTML(item)}<small>Recorded activity</small></div>
+      <form id="welcomeForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Welcome Title</label>
+            <input id="welcomeTitle"
+              value="${escapeHTML(data.title)}" required>
+          </div>
+
+          <div class="form-group">
+            <label>Subtitle</label>
+            <input id="welcomeSubtitle"
+              value="${escapeHTML(data.subtitle)}">
+          </div>
+
+          <div class="form-group">
+            <label>Logo URL</label>
+            <input id="welcomeLogo"
+              value="${escapeHTML(data.logo)}">
+          </div>
+
+          <div class="form-group">
+            <label>Banner URL</label>
+            <input id="welcomeBanner"
+              value="${escapeHTML(data.banner)}">
+          </div>
+
+          <div class="form-group">
+            <label>Login Button Text</label>
+            <input id="loginText"
+              value="${escapeHTML(data.loginText)}">
+          </div>
+
+          <div class="form-group">
+            <label>Registration Button Text</label>
+            <input id="registerText"
+              value="${escapeHTML(data.registerText)}">
+          </div>
+
+          <div class="form-group">
+            <label>Announcement</label>
+            <textarea id="welcomeNotice">${escapeHTML(data.notice)}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Theme Color</label>
+            <input type="color" id="welcomeColor"
+              value="${escapeHTML(data.color)}">
+          </div>
         </div>
-      `).join("")}
+
+        <br>
+        <button class="btn" type="submit">Save Welcome Page</button>
+        <button class="btn btn-light" type="button"
+          data-action="preview-welcome">Preview</button>
+      </form>
+    </div>
+
+    <div class="panel" style="margin-top:20px">
+      <h3>Live Preview</h3>
+      <div id="welcomePreview"></div>
     </div>
   `;
 }
 
+function getWelcomeFormData() {
+  return {
+    title: document.getElementById("welcomeTitle")?.value.trim() || "",
+    subtitle: document.getElementById("welcomeSubtitle")?.value.trim() || "",
+    logo: document.getElementById("welcomeLogo")?.value.trim() || "",
+    banner: document.getElementById("welcomeBanner")?.value.trim() || "",
+    loginText: document.getElementById("loginText")?.value.trim() || "Login",
+    registerText: document.getElementById("registerText")?.value.trim() || "Get Started",
+    notice: document.getElementById("welcomeNotice")?.value.trim() || "",
+    color: document.getElementById("welcomeColor")?.value || "#6842d9"
+  };
+}
+
+function previewWelcome() {
+  const preview = document.getElementById("welcomePreview");
+  if (!preview) return;
+
+  const data = getWelcomeFormData();
+
+  preview.innerHTML = `
+    <div style="text-align:center;padding:20px;background:#f7f5ff;border-radius:14px">
+      ${
+        data.logo
+          ? `<img src="${escapeHTML(data.logo)}"
+              alt="Logo"
+              style="width:65px;height:65px;object-fit:contain">`
+          : ""
+      }
+
+      ${
+        data.banner
+          ? `<img src="${escapeHTML(data.banner)}"
+              alt="Banner"
+              style="width:100%;max-height:170px;object-fit:cover;border-radius:12px">`
+          : ""
+      }
+
+      <h2 style="color:${escapeHTML(data.color)}">
+        ${escapeHTML(data.title)}
+      </h2>
+
+      <p>${escapeHTML(data.subtitle)}</p>
+      <p>${escapeHTML(data.notice)}</p>
+      <button class="btn"
+        style="background:${escapeHTML(data.color)}">
+        ${escapeHTML(data.loginText)}
+      </button>
+      <button class="btn btn-light">
+        ${escapeHTML(data.registerText)}
+      </button>
+    </div>
+  `;
+}
+
+async function saveWelcomePage(event) {
+  event.preventDefault();
+
+  if (currentRole !== "superadmin") return notify("Access denied.");
+
+  try {
+    const data = getWelcomeFormData();
+
+    await saveSetting("welcome_page", data);
+
+    await logActivity("Welcome page settings updated");
+
+    notify("Welcome Page saved successfully.");
+  } catch (error) {
+    notify(error.message);
+  }
+}
+
 /* =========================================
-   SETTINGS
+   PLATFORM SETTINGS
 ========================================= */
 
-function settingsPage() {
+async function settingsPage() {
   if (currentRole !== "superadmin") return forbidden();
+
+  try {
+    settingsData = await loadSetting("platform_settings");
+  } catch (error) {
+    return errorPage(error.message);
+  }
+
+  const data = {
+    academyName: "Classical Academy",
+    supportEmail: "",
+    phone: "",
+    website: "",
+    ...settingsData
+  };
 
   return `
     <div class="page-heading">
-      <div><h3>Platform Settings</h3><p>Manage academy information.</p></div>
+      <div>
+        <h3>Platform Settings</h3>
+        <p>Manage academy information.</p>
+      </div>
     </div>
 
     <div class="panel">
@@ -831,24 +1324,29 @@ function settingsPage() {
         <div class="form-grid">
           <div class="form-group">
             <label>Academy Name</label>
-            <input value="Classical Academy" required>
+            <input id="academyName"
+              value="${escapeHTML(data.academyName)}" required>
           </div>
 
           <div class="form-group">
             <label>Support Email</label>
-            <input type="email" placeholder="support@example.com">
+            <input id="supportEmail" type="email"
+              value="${escapeHTML(data.supportEmail)}">
           </div>
 
           <div class="form-group">
             <label>Contact Number</label>
-            <input placeholder="+8801XXXXXXXXX">
+            <input id="supportPhone"
+              value="${escapeHTML(data.phone)}">
           </div>
 
           <div class="form-group">
             <label>Website URL</label>
-            <input placeholder="https://example.com">
+            <input id="websiteUrl"
+              value="${escapeHTML(data.website)}">
           </div>
         </div>
+
         <br>
         <button class="btn" type="submit">Save Settings</button>
       </form>
@@ -856,21 +1354,30 @@ function settingsPage() {
   `;
 }
 
-/* =========================================
-   ACCESS DENIED
-========================================= */
+async function saveSettings(event) {
+  event.preventDefault();
 
-function forbidden() {
-  return `
-    <div class="panel empty">
-      <h2>⛔ Access Denied</h2>
-      <p>You do not have permission to access this page.</p>
-    </div>
-  `;
+  if (currentRole !== "superadmin") return notify("Access denied.");
+
+  const data = {
+    academyName: document.getElementById("academyName").value.trim(),
+    supportEmail: document.getElementById("supportEmail").value.trim(),
+    phone: document.getElementById("supportPhone").value.trim(),
+    website: document.getElementById("websiteUrl").value.trim()
+  };
+
+  try {
+    await saveSetting("platform_settings", data);
+    await logActivity("Platform settings updated");
+
+    notify("Settings saved successfully.");
+  } catch (error) {
+    notify(error.message);
+  }
 }
 
 /* =========================================
-   PAGE ROUTING
+   ROUTING
 ========================================= */
 
 const PAGES = {
@@ -887,73 +1394,114 @@ const PAGES = {
   settings: settingsPage
 };
 
-function showPage(page) {
-  if (!requireAccess(page)) return;
+async function showPage(page) {
+  if (!canAccess(page) || !PAGES[page]) {
+    content.innerHTML = forbidden();
+    return;
+  }
 
   currentPage = page;
+
   pageTitle.textContent = PAGE_NAMES[page] || "Dashboard";
 
   document.querySelectorAll(".nav-link").forEach(link => {
     link.classList.toggle("active", link.dataset.page === page);
   });
 
-  content.innerHTML = PAGES[page]();
+  content.innerHTML = `
+    <div class="panel" style="text-align:center;padding:35px">
+      Loading...
+    </div>
+  `;
 
-  if (page === "welcome") previewWelcome();
-  attachSearch();
+  try {
+    const html = await PAGES[page]();
+
+    // Avoid showing an old page if user navigated elsewhere.
+    if (currentPage !== page) return;
+
+    content.innerHTML = html;
+
+    if (page === "welcome") previewWelcome();
+
+    attachSearch();
+  } catch (error) {
+    if (currentPage === page) {
+      content.innerHTML = errorPage(error.message);
+    }
+  }
 }
 
 /* =========================================
-   EVENT LISTENERS
+   ACTION HANDLER
 ========================================= */
 
-document.querySelectorAll(".nav-link").forEach(link => {
-  link.addEventListener("click", event => {
-    event.preventDefault();
+content.addEventListener("click", async event => {
+  const button = event.target.closest("[data-action]");
+  if (!button) return;
 
-    showPage(link.dataset.page);
-    document.getElementById("sidebar").classList.remove("open");
-  });
+  const action = button.dataset.action;
+  const id = button.dataset.id;
+
+  button.disabled = true;
+
+  try {
+    switch (action) {
+      case "refresh":
+        await showPage(currentPage);
+        break;
+
+      case "add-course":
+        await addCourse();
+        break;
+
+      case "edit-course":
+        await editCourse(id);
+        break;
+
+      case "delete-course":
+        await deleteCourse(id);
+        break;
+
+      case "add-exam":
+        await addExam();
+        break;
+
+      case "delete-exam":
+        await deleteExam(id);
+        break;
+
+      case "review-report":
+        await reviewReport(id);
+        break;
+
+      case "preview-welcome":
+        previewWelcome();
+        break;
+
+      case "student-info":
+        notify(
+          "Student account creation requires a secure server-side invitation function."
+        );
+        break;
+
+      case "teacher-info":
+      case "staff-info":
+        notify(
+          "Staff account creation and role changes require a secure Supabase Edge Function."
+        );
+        break;
+    }
+  } catch (error) {
+    notify(error.message);
+  } finally {
+    button.disabled = false;
+  }
 });
 
-if (roleSelect) {
-  roleSelect.disabled = true;
-  roleSelect.style.display = "none";
-}
-
-document.getElementById("menuBtn").addEventListener("click", () => {
-  document.getElementById("sidebar").classList.toggle("open");
-});
-
-const logoutButton = document.getElementById("logoutBtn");
-
-if (logoutButton) {
-  logoutButton.addEventListener("click", async () => {
-
-    if (!confirm("তুমি কি সত্যিই Logout করতে চাও?")) {
-      return;
-    }
-
-    logoutButton.disabled = true;
-    logoutButton.textContent = "Logging out...";
-
-    try {
-      const { error } = await supabaseClient.auth.signOut();
-
-      if (error) throw error;
-
-      window.location.replace("../index.html");
-
-    } catch (error) {
-      console.error("Logout error:", error);
-      alert(error.message || "Logout করা যায়নি।");
-
-      logoutButton.disabled = false;
-      logoutButton.innerHTML = "↪ Logout";
-    }
-
-  });
-}
+/* =========================================
+   FORMS
+========================================= */
 
 content.addEventListener("submit", event => {
   if (event.target.id === "welcomeForm") {
@@ -961,39 +1509,81 @@ content.addEventListener("submit", event => {
   }
 
   if (event.target.id === "settingsForm") {
-    event.preventDefault();
-    addActivity("Platform settings form submitted");
-    notify("Demo settings submitted. Backend saving is not connected.");
+    saveSettings(event);
   }
 });
 
 /* =========================================
-   AUTHENTICATION & INITIALIZE
+   NAVIGATION
+========================================= */
+
+document.querySelectorAll(".nav-link").forEach(link => {
+  link.addEventListener("click", event => {
+    event.preventDefault();
+
+    showPage(link.dataset.page);
+
+    document.getElementById("sidebar")?.classList.remove("open");
+  });
+});
+
+document.getElementById("menuBtn")?.addEventListener("click", () => {
+  document.getElementById("sidebar")?.classList.toggle("open");
+});
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+document.getElementById("logoutBtn")?.addEventListener(
+  "click",
+  async event => {
+    const button = event.currentTarget;
+
+    if (!confirm("তুমি কি সত্যিই Logout করতে চাও?")) return;
+
+    button.disabled = true;
+
+    try {
+      const { error } = await supabaseClient.auth.signOut();
+
+      if (error) throw error;
+
+      window.location.replace("../index.html");
+    } catch (error) {
+      notify(error.message);
+      button.disabled = false;
+    }
+  }
+);
+
+/* =========================================
+   AUTHENTICATION
 ========================================= */
 
 async function initializeAdminPanel() {
-
   try {
+    if (!window.supabase) {
+      throw new Error("Supabase library not loaded.");
+    }
 
-    // Check Supabase session
-    const { data: sessionData, error: sessionError } =
+    const { data, error } =
       await supabaseClient.auth.getSession();
 
-    if (sessionError) throw sessionError;
+    if (error) throw error;
 
-    const session = sessionData.session;
+    currentUser = data.session?.user;
 
-    if (!session) {
+    if (!currentUser) {
       window.location.replace("../index.html");
       return;
     }
 
-    // Get actual user profile and role
     const { data: profile, error: profileError } =
       await supabaseClient
         .from("profiles")
-        .select("full_name, role")
-        .eq("id", session.user.id)
+        .select("*")
+        .eq("id", currentUser.id)
         .single();
 
     if (profileError) throw profileError;
@@ -1005,8 +1595,7 @@ async function initializeAdminPanel() {
       "teacher"
     ];
 
-    if (!profile || !allowedRoles.includes(profile.role)) {
-
+    if (!allowedRoles.includes(profile.role)) {
       await supabaseClient.auth.signOut();
 
       alert("তোমার Admin Panel ব্যবহারের অনুমতি নেই।");
@@ -1015,28 +1604,19 @@ async function initializeAdminPanel() {
       return;
     }
 
-    // Set role from database
+    currentProfile = profile;
     currentRole = profile.role;
 
-    // Set actual user name
-    const sideName = document.getElementById("sideName");
-
-    if (sideName && profile.full_name) {
-      sideName.textContent = profile.full_name;
-    }
-
-    // Hide role selector
     if (roleSelect) {
       roleSelect.disabled = true;
       roleSelect.style.display = "none";
     }
 
-    addActivity("Authenticated user opened Admin Panel");
-
     updateRole();
 
-  } catch (error) {
+    await logActivity("Admin panel opened");
 
+  } catch (error) {
     console.error("Admin initialization error:", error);
 
     alert(
