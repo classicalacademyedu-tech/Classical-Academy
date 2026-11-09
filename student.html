@@ -1,0 +1,440 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard | Classical Academy</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f3fa;
+      color: #241b35;
+    }
+
+    header {
+      background: #24164b;
+      color: white;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      font-size: 19px;
+      font-weight: bold;
+    }
+
+    .brand small {
+      display: block;
+      color: #d7c9f5;
+      font-size: 11px;
+      margin-top: 5px;
+    }
+
+    .logout {
+      background: #e74c3c;
+      color: white;
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: auto;
+      padding: 22px 15px 90px;
+    }
+
+    .welcome {
+      background: linear-gradient(120deg, #673ab7, #43217d);
+      color: white;
+      padding: 28px 22px;
+      border-radius: 18px;
+      margin-bottom: 22px;
+    }
+
+    .welcome p {
+      color: #e6dcff;
+      margin-bottom: 9px;
+    }
+
+    .welcome h1 {
+      font-size: 25px;
+      margin-bottom: 9px;
+    }
+
+    .welcome small {
+      color: #e6dcff;
+    }
+
+    .section-title {
+      font-size: 19px;
+      margin: 25px 0 15px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 13px;
+    }
+
+    .stat, .menu-item, .profile {
+      background: white;
+      padding: 20px;
+      border-radius: 13px;
+      box-shadow: 0 3px 15px #30205b0c;
+    }
+
+    .stat .number {
+      color: #673ab7;
+      font-size: 27px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .menu {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 13px;
+    }
+
+    .menu-item {
+      border: 1px solid #eee8fa;
+      text-align: left;
+      cursor: pointer;
+      color: #241b35;
+      font-size: 15px;
+      min-height: 95px;
+    }
+
+    .menu-item span {
+      display: block;
+      color: #673ab7;
+      font-size: 25px;
+      margin-bottom: 12px;
+    }
+
+    .profile p {
+      padding: 11px 0;
+      border-bottom: 1px solid #eee;
+      overflow-wrap: anywhere;
+    }
+
+    .profile p:last-child {
+      border: 0;
+    }
+
+    .muted {
+      color: #777;
+      font-size: 13px;
+    }
+
+    .notice {
+      background: white;
+      padding: 20px;
+      border-radius: 13px;
+      color: #777;
+      line-height: 1.6;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 13px 5px;
+      box-shadow: 0 -3px 15px #00000010;
+    }
+
+    .bottom-nav button {
+      border: 0;
+      background: none;
+      color: #777;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .bottom-nav button.active {
+      color: #673ab7;
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media(min-width: 650px) {
+      .stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .menu {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    CLASSICAL ACADEMY
+    <small>Student Dashboard</small>
+  </div>
+
+  <button class="logout" id="logoutBtn">Logout</button>
+</header>
+
+<main>
+
+  <section class="welcome">
+    <p>Welcome back!</p>
+    <h1 id="studentName">Student 👋</h1>
+    <small id="studentClass">তোমার পড়াশোনা শুরু করো</small>
+  </section>
+
+  <h2 class="section-title">My Learning</h2>
+
+  <section class="stats">
+    <div class="stat">
+      <div>📚 My Courses</div>
+      <div class="number">0</div>
+      <div class="muted">Enrolled courses</div>
+    </div>
+
+    <div class="stat">
+      <div>🎥 Live Classes</div>
+      <div class="number">0</div>
+      <div class="muted">Available classes</div>
+    </div>
+
+    <div class="stat">
+      <div>📝 Examinations</div>
+      <div class="number">0</div>
+      <div class="muted">My exams</div>
+    </div>
+
+    <div class="stat">
+      <div>🏆 My Results</div>
+      <div class="number">0</div>
+      <div class="muted">Published results</div>
+    </div>
+  </section>
+
+  <h2 class="section-title">Learning Menu</h2>
+
+  <section class="menu">
+    <button class="menu-item" data-page="courses">
+      <span>📚</span>My Courses
+    </button>
+
+    <button class="menu-item" data-page="classes">
+      <span>🎥</span>Live Classes
+    </button>
+
+    <button class="menu-item" data-page="exams">
+      <span>📝</span>Examinations
+    </button>
+
+    <button class="menu-item" data-page="results">
+      <span>🏆</span>My Results
+    </button>
+
+    <button class="menu-item" data-page="profile">
+      <span>👤</span>My Profile
+    </button>
+
+    <button class="menu-item" data-page="settings">
+      <span>⚙️</span>Settings
+    </button>
+  </section>
+
+  <section id="profileSection">
+    <h2 class="section-title">My Profile</h2>
+
+    <div class="profile">
+      <p><strong>Full Name:</strong> <span id="profileName">Loading...</span></p>
+      <p><strong>Username:</strong> <span id="profileUsername">Loading...</span></p>
+      <p><strong>Email:</strong> <span id="profileEmail">Loading...</span></p>
+      <p><strong>Phone:</strong> <span id="profilePhone">Loading...</span></p>
+      <p><strong>Class:</strong> <span id="profileClass">Loading...</span></p>
+      <p><strong>Group:</strong> <span id="profileGroup">Loading...</span></p>
+      <p><strong>Role:</strong> <span id="profileRole">Loading...</span></p>
+    </div>
+  </section>
+
+  <section id="contentSection" class="hidden">
+    <h2 class="section-title" id="contentTitle"></h2>
+    <div class="notice" id="contentMessage">
+      এই বিভাগে এখনো কোনো তথ্য যোগ করা হয়নি।
+    </div>
+  </section>
+
+</main>
+
+<nav class="bottom-nav">
+  <button class="active" data-page="home">🏠<br>Home</button>
+  <button data-page="courses">📚<br>Courses</button>
+  <button data-page="classes">🎥<br>Classes</button>
+  <button data-page="profile">👤<br>Profile</button>
+</nav>
+
+<script>
+"use strict";
+
+const SUPABASE_URL = "https://fskfjvyetjuofappxqnw.supabase.co";
+const SUPABASE_KEY = "sb_publishable_m07iz_JW12ynejlP3hXVJQ_wzuX_4X";
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+async function loadStudentDashboard() {
+  try {
+    const { data: sessionData, error: sessionError } =
+      await client.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const user = sessionData.session?.user;
+
+    if (!user) {
+      window.location.replace("login.html");
+      return;
+    }
+
+    const { data: profile, error } = await client
+      .from("profiles")
+      .select("full_name, username, phone, class_level, student_group, role")
+      .eq("id", user.id)
+      .single();
+
+    if (error) throw error;
+
+    if (profile.role !== "student") {
+      alert("এই Dashboard শুধু Student-দের জন্য।");
+      window.location.replace("login.html");
+      return;
+    }
+
+    const name = profile.full_name || "Student";
+
+    document.getElementById("studentName").textContent =
+      name + " 👋";
+
+    document.getElementById("studentClass").textContent =
+      "Class " + (profile.class_level || "Not selected");
+
+    document.getElementById("profileName").textContent =
+      name;
+
+    document.getElementById("profileUsername").textContent =
+      profile.username || "Not available";
+
+    document.getElementById("profileEmail").textContent =
+      user.email || "Not available";
+
+    document.getElementById("profilePhone").textContent =
+      profile.phone || "Not available";
+
+    document.getElementById("profileClass").textContent =
+      profile.class_level || "Not available";
+
+    document.getElementById("profileGroup").textContent =
+      profile.student_group || "Not applicable";
+
+    document.getElementById("profileRole").textContent =
+      profile.role;
+
+  } catch (error) {
+    console.error("Dashboard Error:", error);
+    alert("Dashboard Load করা যায়নি: " + error.message);
+  }
+}
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  const button = document.getElementById("logoutBtn");
+  button.disabled = true;
+
+  const { error } = await client.auth.signOut();
+
+  if (error) {
+    alert("Logout করা যায়নি: " + error.message);
+    button.disabled = false;
+    return;
+  }
+
+  window.location.replace("login.html");
+});
+
+// Menu navigation
+const pageTitles = {
+  home: "Home",
+  courses: "My Courses",
+  classes: "Live Classes",
+  exams: "Examinations",
+  results: "My Results",
+  profile: "My Profile",
+  settings: "Settings"
+};
+
+document.querySelectorAll("[data-page]").forEach(button => {
+  button.addEventListener("click", () => {
+    const page = button.dataset.page;
+
+    document.querySelectorAll(".bottom-nav button").forEach(item => {
+      item.classList.toggle("active", item.dataset.page === page);
+    });
+
+    const profileSection = document.getElementById("profileSection");
+    const contentSection = document.getElementById("contentSection");
+
+    if (page === "home") {
+      profileSection.classList.remove("hidden");
+      contentSection.classList.add("hidden");
+      return;
+    }
+
+    if (page === "profile") {
+      profileSection.classList.remove("hidden");
+      contentSection.classList.add("hidden");
+      profileSection.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    profileSection.classList.add("hidden");
+    contentSection.classList.remove("hidden");
+
+    document.getElementById("contentTitle").textContent =
+      pageTitles[page] || "Dashboard";
+
+    document.getElementById("contentMessage").textContent =
+      pageTitles[page] + " বিভাগে এখনো কোনো তথ্য যোগ করা হয়নি।";
+
+    contentSection.scrollIntoView({ behavior: "smooth" });
+  });
+});
+
+loadStudentDashboard();
+</script>
+
+</body>
+</html>
