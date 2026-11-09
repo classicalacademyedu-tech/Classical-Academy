@@ -282,3 +282,79 @@ if (verifyButton) {
     });
   }
 }
+
+// =========================================
+// CLASSICAL ACADEMY - LOGIN SYSTEM
+// =========================================
+
+const loginForm = document.getElementById("loginForm");
+
+if (loginForm) {
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const loginBtn = document.getElementById("loginBtn");
+    const loginMessage = document.getElementById("loginMessage");
+
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Logging in...";
+    loginMessage.textContent = "";
+
+    try {
+      // Supabase Login
+      const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if (error) throw error;
+
+      // User Profile এবং Role যাচাই
+      const { data: profile, error: profileError } =
+        await supabaseClient
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
+
+      if (profileError) throw profileError;
+
+      loginMessage.style.color = "green";
+
+      if (profile.role === "superadmin") {
+        loginMessage.textContent = "Super Admin Login Successful!";
+
+        setTimeout(() => {
+          window.location.href = "admin/admin.html";
+        }, 1000);
+
+      } else if (
+        ["admin", "moderator", "teacher"].includes(profile.role)
+      ) {
+        loginMessage.textContent = "Login Successful!";
+
+        setTimeout(() => {
+          window.location.href = "admin/admin.html";
+        }, 1000);
+
+      } else {
+        loginMessage.textContent = "Student Login Successful!";
+      }
+
+    } catch (error) {
+      console.error("Login Error:", error);
+
+      loginMessage.style.color = "red";
+      loginMessage.textContent =
+        error.message || "Login failed. আবার চেষ্টা করো।";
+
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Login";
+    }
+  });
+}
