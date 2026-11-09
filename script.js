@@ -209,12 +209,21 @@ if (verifyButton) {
       }
 
       // OTP যাচাইয়ের পর Password সেট
-      const { error: passwordError } =
-        await supabaseClient.auth.updateUser({
-          password: pendingData.password
-        });
+      
+const { error: passwordError } =
+  await supabaseClient.auth.updateUser({
+    password: pendingData.password
+  });
 
-      if (passwordError) throw passwordError;
+if (
+  passwordError &&
+  !passwordError.message.toLowerCase().includes(
+    "new password should be different"
+  )
+) {
+  throw passwordError;
+}
+
 
       // Profile-এর তথ্য নিশ্চিত করা
       const { error: profileError } = await supabaseClient
