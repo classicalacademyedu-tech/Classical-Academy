@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Email | Classical Academy</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f5f2ff;
+      color: #241b35;
+    }
+
+    .card {
+      max-width: 430px;
+      margin: 70px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 8px 35px #30205b18;
+    }
+
+    h1 {
+      text-align: center;
+      color: #673ab7;
+    }
+
+    p {
+      text-align: center;
+      color: #777;
+      line-height: 1.6;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      border-radius: 9px;
+      font-size: 20px;
+      text-align: center;
+      letter-spacing: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 18px;
+      background: #673ab7;
+      color: white;
+      border: 0;
+      border-radius: 9px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #resendBtn {
+      background: #eee8fa;
+      color: #673ab7;
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 18px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h1>Verify Your Email</h1>
+
+    <p>
+      তোমার Email-এ পাঠানো ৮ সংখ্যার OTP লিখে
+      Email Verification সম্পন্ন করো।
+    </p>
+
+    <p id="verifyEmail"></p>
+
+    <input
+      id="otpInput"
+      type="text"
+      inputmode="numeric"
+      maxlength="8"
+      placeholder="Enter OTP"
+      autocomplete="one-time-code"
+    >
+
+    <button id="verifyBtn" type="button">
+      Verify Email
+    </button>
+
+    <button id="resendBtn" type="button">
+      Resend OTP
+    </button>
+
+    <div id="message" class="message"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js?v=2"></script>
+
+</body>
+</html>
