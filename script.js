@@ -350,8 +350,12 @@ if (loginForm) {
           window.location.href = "admin/admin.html";
         }, 1000);
 
-      } else {
-        loginMessage.textContent = "Student Login Successful!";
+      } else if (profile.role === "student") {
+  loginMessage.textContent = "Student Login Successful!";
+
+  setTimeout(() => {
+    window.location.href = "student.html";
+  }, 1000);
       }
 
     } catch (error) {
