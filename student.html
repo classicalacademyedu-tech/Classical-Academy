@@ -1,440 +1,548 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Dashboard | Classical Academy</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>শিক্ষার্থী ড্যাশবোর্ড | Classical Academy</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f3fa;
-      color: #241b35;
-    }
-
-    header {
-      background: #24164b;
-      color: white;
-      padding: 18px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .brand {
-      font-size: 19px;
-      font-weight: bold;
-    }
-
-    .brand small {
-      display: block;
-      color: #d7c9f5;
-      font-size: 11px;
-      margin-top: 5px;
-    }
-
-    .logout {
-      background: #e74c3c;
-      color: white;
-      border: 0;
-      padding: 10px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    main {
-      max-width: 1000px;
-      margin: auto;
-      padding: 22px 15px 90px;
-    }
-
-    .welcome {
-      background: linear-gradient(120deg, #673ab7, #43217d);
-      color: white;
-      padding: 28px 22px;
-      border-radius: 18px;
-      margin-bottom: 22px;
-    }
-
-    .welcome p {
-      color: #e6dcff;
-      margin-bottom: 9px;
-    }
-
-    .welcome h1 {
-      font-size: 25px;
-      margin-bottom: 9px;
-    }
-
-    .welcome small {
-      color: #e6dcff;
-    }
-
-    .section-title {
-      font-size: 19px;
-      margin: 25px 0 15px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 13px;
-    }
-
-    .stat, .menu-item, .profile {
-      background: white;
-      padding: 20px;
-      border-radius: 13px;
-      box-shadow: 0 3px 15px #30205b0c;
-    }
-
-    .stat .number {
-      color: #673ab7;
-      font-size: 27px;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    .menu {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 13px;
-    }
-
-    .menu-item {
-      border: 1px solid #eee8fa;
-      text-align: left;
-      cursor: pointer;
-      color: #241b35;
-      font-size: 15px;
-      min-height: 95px;
-    }
-
-    .menu-item span {
-      display: block;
-      color: #673ab7;
-      font-size: 25px;
-      margin-bottom: 12px;
-    }
-
-    .profile p {
-      padding: 11px 0;
-      border-bottom: 1px solid #eee;
-      overflow-wrap: anywhere;
-    }
-
-    .profile p:last-child {
-      border: 0;
-    }
-
-    .muted {
-      color: #777;
-      font-size: 13px;
-    }
-
-    .notice {
-      background: white;
-      padding: 20px;
-      border-radius: 13px;
-      color: #777;
-      line-height: 1.6;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      display: flex;
-      justify-content: space-around;
-      padding: 13px 5px;
-      box-shadow: 0 -3px 15px #00000010;
-    }
-
-    .bottom-nav button {
-      border: 0;
-      background: none;
-      color: #777;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .bottom-nav button.active {
-      color: #673ab7;
-      font-weight: bold;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    @media(min-width: 650px) {
-      .stats {
-        grid-template-columns: repeat(4, 1fr);
-      }
-
-      .menu {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-  </style>
+<style>
+:root {
+  --primary:#5633a5;
+  --primary-dark:#291858;
+  --purple-light:#f1ebff;
+  --text:#211a35;
+  --muted:#817b90;
+  --bg:#f7f6fb;
+  --white:#fff;
+  --border:#eeeaf5;
+  --shadow:0 5px 22px rgba(42,25,83,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);padding-bottom:88px}
+button{font:inherit;cursor:pointer}
+.topbar{background:white;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;box-shadow:0 2px 12px #211a3508}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#7049c7,#38206e);display:grid;place-items:center;color:white;font-size:21px;font-weight:800}
+.brand-name{font-weight:800;font-size:17px;line-height:1.1}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.top-actions{display:flex;gap:9px}
+.icon-btn{width:39px;height:39px;border:1px solid var(--border);background:white;border-radius:12px;font-size:18px;position:relative}
+.dot{position:absolute;width:8px;height:8px;background:#ef5350;border-radius:50%;right:7px;top:7px}
+main{max-width:1080px;margin:auto;padding:18px 15px 30px}
+.page{display:none}
+.page.active{display:block}
+.hero{background:linear-gradient(120deg,#39216f,#7047c4);color:white;border-radius:22px;padding:23px 21px;position:relative;overflow:hidden;min-height:178px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hero:after{content:"";position:absolute;width:190px;height:190px;border:30px solid #ffffff12;border-radius:50%;right:-45px;top:-65px}
+.hero-copy{position:relative;z-index:1;max-width:70%}
+.hero-tag{font-size:12px;color:#e3d8ff;margin-bottom:9px}
+.hero h1{font-size:25px;line-height:1.35;margin-bottom:8px}
+.hero p{font-size:13px;color:#e9e1ff}
+.hero-art{font-size:63px;position:relative;z-index:1}
+.hero-btn{margin-top:15px;border:0;background:white;color:#4c2a91;border-radius:10px;padding:9px 15px;font-weight:700;font-size:13px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:25px 1px 13px}
+.section-head h2{font-size:19px;font-weight:700}
+.see-all{border:0;background:none;color:var(--primary);font-weight:700;font-size:13px}
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.quick-card{background:white;border:1px solid var(--border);border-radius:15px;padding:14px 7px;text-align:center;box-shadow:var(--shadow)}
+.quick-icon{width:42px;height:42px;margin:0 auto 8px;border-radius:13px;background:var(--purple-light);display:grid;place-items:center;font-size:22px}
+.quick-card strong{font-size:12px;display:block}
+.quick-card small{font-size:10px;color:var(--muted)}
+.category-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.category{border:1px solid var(--border);border-radius:15px;background:white;padding:15px;display:flex;align-items:center;gap:12px;text-align:left}
+.category .cat-icon{width:43px;height:43px;border-radius:13px;background:#f3efff;display:grid;place-items:center;font-size:22px;flex-shrink:0}
+.category strong{font-size:14px}
+.category small{display:block;color:var(--muted);font-size:11px}
+.teacher-grid,.item-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.teacher,.data-card{background:white;border:1px solid var(--border);border-radius:16px;padding:15px;box-shadow:var(--shadow)}
+.teacher-avatar{width:55px;height:55px;border-radius:50%;background:#eee6ff;display:grid;place-items:center;font-size:27px;margin-bottom:10px}
+.teacher strong,.data-card strong{display:block;font-size:14px}
+.teacher small,.data-card small{color:var(--muted);font-size:12px}
+.teacher p,.data-card p{font-size:12px;color:var(--muted);margin-top:6px}
+.support-banner{background:linear-gradient(110deg,#fff0e7,#fff8f3);border:1px solid #ffe5d4;border-radius:17px;padding:17px;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:23px}
+.support-banner strong{font-size:15px}
+.support-banner p{font-size:12px;color:#8c6b5a}
+.support-banner button{background:#e87943;color:white;border:0;border-radius:9px;padding:9px 13px;font-size:12px}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.stat-card{background:white;border:1px solid var(--border);border-radius:15px;padding:15px}
+.stat-card span{font-size:23px}
+.stat-card strong{display:block;font-size:24px;color:var(--primary);margin-top:5px}
+.stat-card small{font-size:12px;color:var(--muted)}
+.profile-card{background:linear-gradient(120deg,#43257e,#7651c7);border-radius:18px;padding:20px;color:white;display:flex;align-items:center;gap:14px}
+.profile-avatar{width:58px;height:58px;background:#ffffff25;border-radius:50%;display:grid;place-items:center;font-size:27px}
+.profile-card small{color:#e4d9ff}
+.profile-group{margin-top:21px}
+.profile-group h3{font-size:14px;color:var(--muted);margin:0 0 9px 4px}
+.profile-list{background:white;border:1px solid var(--border);border-radius:15px;overflow:hidden}
+.profile-row{width:100%;padding:13px 15px;border:0;border-bottom:1px solid var(--border);background:white;display:flex;align-items:center;gap:12px;text-align:left;color:var(--text)}
+.profile-row:last-child{border-bottom:0}
+.profile-row .row-icon{width:34px;height:34px;background:#f3efff;border-radius:10px;display:grid;place-items:center}
+.profile-row .row-text{flex:1;font-size:14px}
+.profile-row .arrow{color:#aaa}
+.profile-details{background:white;border:1px solid var(--border);border-radius:15px;padding:15px;margin-top:14px}
+.profile-details p{padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;overflow-wrap:anywhere}
+.profile-details p:last-child{border:0}
+.profile-details b{display:inline-block;min-width:105px}
+.empty{background:white;border:1px dashed #dcd4ed;border-radius:15px;padding:25px 15px;text-align:center;color:var(--muted);font-size:13px;line-height:1.8;grid-column:1/-1}
+.empty span{display:block;font-size:32px;margin-bottom:8px}
+.loading{text-align:center;padding:25px;color:var(--muted);font-size:13px}
+.bottom-nav{position:fixed;bottom:0;left:0;width:100%;z-index:30;background:white;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(6,1fr);padding:8px 2px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 18px #211a350b}
+.nav-btn{border:0;background:none;color:#9990a9;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav-btn .nav-icon{font-size:20px;line-height:1.2}
+.nav-btn.active{color:var(--primary);font-weight:700}
+.toast{position:fixed;left:50%;bottom:95px;transform:translateX(-50%);background:#292039;color:white;padding:10px 16px;border-radius:10px;font-size:12px;z-index:50;display:none;max-width:90%;text-align:center}
+@media(min-width:700px){
+ main{padding:25px 22px 40px}
+ .hero{padding:30px 35px;min-height:210px}
+ .hero h1{font-size:31px}
+ .quick-grid{grid-template-columns:repeat(4,1fr)}
+ .category-grid{grid-template-columns:repeat(4,1fr)}
+ .teacher-grid,.item-grid{grid-template-columns:repeat(3,1fr)}
+ .stat-grid{grid-template-columns:repeat(4,1fr)}
+ .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border:1px solid var(--border);border-bottom:0;border-radius:17px 17px 0 0}
+}
+</style>
 </head>
 
 <body>
-
-<header>
+<header class="topbar">
   <div class="brand">
-    CLASSICAL ACADEMY
-    <small>Student Dashboard</small>
+    <div class="brand-logo">CA</div>
+    <div>
+      <div class="brand-name">CLASSICAL ACADEMY</div>
+      <div class="brand-sub">শেখার নতুন ঠিকানা</div>
+    </div>
   </div>
-
-  <button class="logout" id="logoutBtn">Logout</button>
+  <div class="top-actions">
+    <button class="icon-btn" id="notificationBtn" aria-label="নোটিফিকেশন">🔔<i class="dot"></i></button>
+    <button class="icon-btn" id="topProfileBtn" aria-label="প্রোফাইল">👤</button>
+  </div>
 </header>
 
 <main>
-
-  <section class="welcome">
-    <p>Welcome back!</p>
-    <h1 id="studentName">Student 👋</h1>
-    <small id="studentClass">তোমার পড়াশোনা শুরু করো</small>
-  </section>
-
-  <h2 class="section-title">My Learning</h2>
-
-  <section class="stats">
-    <div class="stat">
-      <div>📚 My Courses</div>
-      <div class="number">0</div>
-      <div class="muted">Enrolled courses</div>
+  <!-- HOME -->
+  <section class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-copy">
+        <div class="hero-tag">CLASSICAL ACADEMY-তে স্বাগতম</div>
+        <h1>পড়াশোনায় এগিয়ে যাও<br><span id="heroName">প্রিয় শিক্ষার্থী</span>! 👋</h1>
+        <p id="heroClass">তোমার শেখার যাত্রা শুরু হোক আজই।</p>
+        <button class="hero-btn" onclick="showPage('courses')">আমার কোর্স দেখো →</button>
+      </div>
+      <div class="hero-art">🎓</div>
     </div>
 
-    <div class="stat">
-      <div>🎥 Live Classes</div>
-      <div class="number">0</div>
-      <div class="muted">Available classes</div>
+    <div class="section-head"><h2>আমার পড়াশোনা</h2></div>
+    <div class="quick-grid">
+      <div class="quick-card"><div class="quick-icon">📚</div><strong>কোর্স</strong><small id="homeCourseCount">০টি কোর্স</small></div>
+      <div class="quick-card"><div class="quick-icon">🎥</div><strong>লাইভ ক্লাস</strong><small>ক্লাস আপডেট</small></div>
+      <div class="quick-card"><div class="quick-icon">📝</div><strong>পরীক্ষা</strong><small id="homeExamCount">০টি পরীক্ষা</small></div>
+      <div class="quick-card"><div class="quick-icon">🏆</div><strong>ফলাফল</strong><small id="homeResultCount">০টি ফলাফল</small></div>
     </div>
 
-    <div class="stat">
-      <div>📝 Examinations</div>
-      <div class="number">0</div>
-      <div class="muted">My exams</div>
+    <div class="section-head"><h2>শেখার বিভাগ</h2><button class="see-all" onclick="showPage('courses')">সব দেখো</button></div>
+    <div class="category-grid">
+      <button class="category" onclick="showPage('courses')"><span class="cat-icon">📘</span><span><strong>আমার কোর্স</strong><small>কোর্স ও লেসন</small></span></button>
+      <button class="category" onclick="showPage('store')"><span class="cat-icon">🛍️</span><span><strong>এডুকেশন স্টোর</strong><small>বই ও স্টাডি ম্যাটেরিয়াল</small></span></button>
+      <button class="category" onclick="showPage('library')"><span class="cat-icon">📖</span><span><strong>আমার লাইব্রেরি</strong><small>বই ও PDF</small></span></button>
+      <button class="category" onclick="showPage('exams')"><span class="cat-icon">📝</span><span><strong>অনলাইন পরীক্ষা</strong><small>পরীক্ষা ও ফলাফল</small></span></button>
     </div>
 
-    <div class="stat">
-      <div>🏆 My Results</div>
-      <div class="number">0</div>
-      <div class="muted">Published results</div>
+    <div class="section-head"><h2>আমাদের শিক্ষকবৃন্দ</h2></div>
+    <div class="teacher-grid" id="teacherList">
+      <div class="empty"><span>👨‍🏫</span>শিক্ষকদের তথ্য শিগগিরই এখানে দেখানো হবে।</div>
     </div>
-  </section>
 
-  <h2 class="section-title">Learning Menu</h2>
-
-  <section class="menu">
-    <button class="menu-item" data-page="courses">
-      <span>📚</span>My Courses
-    </button>
-
-    <button class="menu-item" data-page="classes">
-      <span>🎥</span>Live Classes
-    </button>
-
-    <button class="menu-item" data-page="exams">
-      <span>📝</span>Examinations
-    </button>
-
-    <button class="menu-item" data-page="results">
-      <span>🏆</span>My Results
-    </button>
-
-    <button class="menu-item" data-page="profile">
-      <span>👤</span>My Profile
-    </button>
-
-    <button class="menu-item" data-page="settings">
-      <span>⚙️</span>Settings
-    </button>
-  </section>
-
-  <section id="profileSection">
-    <h2 class="section-title">My Profile</h2>
-
-    <div class="profile">
-      <p><strong>Full Name:</strong> <span id="profileName">Loading...</span></p>
-      <p><strong>Username:</strong> <span id="profileUsername">Loading...</span></p>
-      <p><strong>Email:</strong> <span id="profileEmail">Loading...</span></p>
-      <p><strong>Phone:</strong> <span id="profilePhone">Loading...</span></p>
-      <p><strong>Class:</strong> <span id="profileClass">Loading...</span></p>
-      <p><strong>Group:</strong> <span id="profileGroup">Loading...</span></p>
-      <p><strong>Role:</strong> <span id="profileRole">Loading...</span></p>
+    <div class="support-banner">
+      <div><strong>কোনো সাহায্য প্রয়োজন?</strong><p>আমাদের সাপোর্ট টিম তোমার পাশে আছে।</p></div>
+      <button onclick="showToast('সাপোর্ট ব্যবস্থা শিগগিরই চালু হবে।')">সাপোর্ট</button>
     </div>
   </section>
 
-  <section id="contentSection" class="hidden">
-    <h2 class="section-title" id="contentTitle"></h2>
-    <div class="notice" id="contentMessage">
-      এই বিভাগে এখনো কোনো তথ্য যোগ করা হয়নি।
+  <!-- COURSES -->
+  <section class="page" id="page-courses">
+    <div class="section-head"><h2>📚 আমার কোর্স</h2></div>
+    <div class="stat-grid" style="margin-bottom:15px">
+      <div class="stat-card"><span>📚</span><strong id="courseCount">০</strong><small>এনরোল করা কোর্স</small></div>
+      <div class="stat-card"><span>🎓</span><strong id="availableCourseCount">০</strong><small>প্রকাশিত কোর্স</small></div>
     </div>
+    <div class="item-grid" id="courseList"><div class="loading">কোর্স লোড হচ্ছে...</div></div>
   </section>
 
+  <!-- STORE -->
+  <section class="page" id="page-store">
+    <div class="section-head"><h2>🛍️ এডুকেশন স্টোর</h2></div>
+    <p class="muted" style="font-size:13px;margin-bottom:14px">বই, PDF নোট ও প্রয়োজনীয় শিক্ষা উপকরণ।</p>
+    <div class="item-grid" id="storeList"><div class="loading">স্টোর লোড হচ্ছে...</div></div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section class="page" id="page-library">
+    <div class="section-head"><h2>📖 আমার লাইব্রেরি</h2></div>
+    <p class="muted" style="font-size:13px;margin-bottom:14px">তোমার কেনা ও অনুমোদিত বই এবং PDF এখানে থাকবে।</p>
+    <div class="item-grid" id="libraryList"><div class="loading">লাইব্রেরি লোড হচ্ছে...</div></div>
+  </section>
+
+  <!-- EXAMS -->
+  <section class="page" id="page-exams">
+    <div class="section-head"><h2>📝 পরীক্ষা ও ফলাফল</h2></div>
+    <div class="stat-grid" style="margin-bottom:15px">
+      <div class="stat-card"><span>📝</span><strong id="examCount">০</strong><small>পরীক্ষা</small></div>
+      <div class="stat-card"><span>🏆</span><strong id="resultCount">০</strong><small>প্রকাশিত ফলাফল</small></div>
+    </div>
+    <div class="section-head"><h2>পরীক্ষাসমূহ</h2></div>
+    <div class="item-grid" id="examList"><div class="loading">পরীক্ষার তথ্য লোড হচ্ছে...</div></div>
+    <div class="section-head"><h2>আমার ফলাফল</h2></div>
+    <div class="item-grid" id="resultList"><div class="loading">ফলাফল লোড হচ্ছে...</div></div>
+  </section>
+
+  <!-- PROFILE -->
+  <section class="page" id="page-profile">
+    <div class="section-head"><h2>👤 আমার প্রোফাইল</h2></div>
+    <div class="profile-card">
+      <div class="profile-avatar">👤</div>
+      <div><h2 id="profileDisplayName">শিক্ষার্থী</h2><small id="profileDisplayClass">শিক্ষার্থী অ্যাকাউন্ট</small></div>
+    </div>
+
+    <div class="profile-details">
+      <p><b>পূর্ণ নাম</b><span id="profileName">লোড হচ্ছে...</span></p>
+      <p><b>ইউজারনেম</b><span id="profileUsername">লোড হচ্ছে...</span></p>
+      <p><b>ইমেইল</b><span id="profileEmail">লোড হচ্ছে...</span></p>
+      <p><b>মোবাইল</b><span id="profilePhone">লোড হচ্ছে...</span></p>
+      <p><b>শ্রেণি</b><span id="profileClass">লোড হচ্ছে...</span></p>
+      <p><b>বিভাগ</b><span id="profileGroup">লোড হচ্ছে...</span></p>
+    </div>
+
+    <div class="profile-group">
+      <h3>আমার অ্যাকাউন্ট</h3>
+      <div class="profile-list">
+        <button class="profile-row" onclick="showToast('প্রোফাইল সম্পাদনা শিগগিরই চালু হবে।')"><span class="row-icon">👤</span><span class="row-text">প্রোফাইল সম্পাদনা</span><span class="arrow">›</span></button>
+        <button class="profile-row" onclick="showToast('বুকমার্ক ফিচার শিগগিরই চালু হবে।')"><span class="row-icon">🔖</span><span class="row-text">আমার বুকমার্ক</span><span class="arrow">›</span></button>
+        <button class="profile-row" onclick="showToast('অর্ডার ইতিহাস শিগগিরই দেখানো হবে।')"><span class="row-icon">🧾</span><span class="row-text">অর্ডার ইতিহাস</span><span class="arrow">›</span></button>
+        <button class="profile-row" onclick="showToast('তোমার ডিভাইস ব্যবস্থাপনা শিগগিরই চালু হবে।')"><span class="row-icon">📱</span><span class="row-text">আমার ডিভাইস</span><span class="arrow">›</span></button>
+        <button class="profile-row" onclick="showToast('কার্যক্রমের তথ্য শিগগিরই দেখানো হবে।')"><span class="row-icon">📊</span><span class="row-text">আমার কার্যক্রম</span><span class="arrow">›</span></button>
+      </div>
+    </div>
+
+    <div class="profile-group">
+      <h3>সাপোর্ট ও সেটিংস</h3>
+      <div class="profile-list">
+        <button class="profile-row" onclick="showToast('সাপোর্ট রিপোর্ট ব্যবস্থা শিগগিরই চালু হবে।')"><span class="row-icon">🎧</span><span class="row-text">সাপোর্ট রিপোর্ট</span><span class="arrow">›</span></button>
+        <button class="profile-row" onclick="showToast('এআই টিউটর শিগগিরই চালু হবে।')"><span class="row-icon">🤖</span><span class="row-text">এআই টিউটর</span><span class="arrow">›</span></button>
+        <button class="profile-row" onclick="showToast('সমাধান বিভাগ শিগগিরই চালু হবে।')"><span class="row-icon">💡</span><span class="row-text">সমস্যার সমাধান</span><span class="arrow">›</span></button>
+        <button class="profile-row" onclick="showToast('অফলাইন কনটেন্ট ব্যবস্থা শিগগিরই চালু হবে।')"><span class="row-icon">⬇️</span><span class="row-text">অফলাইন কনটেন্ট</span><span class="arrow">›</span></button>
+        <button class="profile-row" onclick="showToast('বায়োমেট্রিক লগইন ব্যবস্থা শিগগিরই চালু হবে।')"><span class="row-icon">🔐</span><span class="row-text">বায়োমেট্রিক লগইন</span><span class="arrow">›</span></button>
+      </div>
+    </div>
+
+    <div class="profile-group">
+      <h3>অ্যাকাউন্ট</h3>
+      <div class="profile-list">
+        <button class="profile-row" id="logoutBtn"><span class="row-icon">🚪</span><span class="row-text">লগআউট</span><span class="arrow">›</span></button>
+      </div>
+    </div>
+  </section>
 </main>
 
 <nav class="bottom-nav">
-  <button class="active" data-page="home">🏠<br>Home</button>
-  <button data-page="courses">📚<br>Courses</button>
-  <button data-page="classes">🎥<br>Classes</button>
-  <button data-page="profile">👤<br>Profile</button>
+  <button class="nav-btn active" data-page="home"><span class="nav-icon">🏠</span>হোম</button>
+  <button class="nav-btn" data-page="courses"><span class="nav-icon">📚</span>কোর্স</button>
+  <button class="nav-btn" data-page="store"><span class="nav-icon">🛍️</span>স্টোর</button>
+  <button class="nav-btn" data-page="library"><span class="nav-icon">📖</span>লাইব্রেরি</button>
+  <button class="nav-btn" data-page="exams"><span class="nav-icon">📝</span>পরীক্ষা</button>
+  <button class="nav-btn" data-page="profile"><span class="nav-icon">👤</span>প্রোফাইল</button>
 </nav>
+
+<div class="toast" id="toast"></div>
 
 <script>
 "use strict";
 
 const SUPABASE_URL = "https://fskfjvyetjuofappxqnw.supabase.co";
-const SUPABASE_KEY = "sb_publishable_m07iz_JW12ynejlP3hXVJQ_wzuXq_4X";
+const SUPABASE_KEY = "sb_publishable_m07iz_JW12ynejlP3hXVJQ_wzuX_4X";
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const client = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+let currentUser = null;
+let currentProfile = null;
 
-async function loadStudentDashboard() {
-  try {
-    const { data: sessionData, error: sessionError } =
-      await client.auth.getSession();
-
-    if (sessionError) throw sessionError;
-
-    const user = sessionData.session?.user;
-
-    if (!user) {
-      window.location.replace("login.html");
-      return;
-    }
-
-    const { data: profile, error } = await client
-      .from("profiles")
-      .select("full_name, username, phone, class_level, student_group, role")
-      .eq("id", user.id)
-      .single();
-
-    if (error) throw error;
-
-    if (profile.role !== "student") {
-      alert("এই Dashboard শুধু Student-দের জন্য।");
-      window.location.replace("login.html");
-      return;
-    }
-
-    const name = profile.full_name || "Student";
-
-    document.getElementById("studentName").textContent =
-      name + " 👋";
-
-    document.getElementById("studentClass").textContent =
-      "Class " + (profile.class_level || "Not selected");
-
-    document.getElementById("profileName").textContent =
-      name;
-
-    document.getElementById("profileUsername").textContent =
-      profile.username || "Not available";
-
-    document.getElementById("profileEmail").textContent =
-      user.email || "Not available";
-
-    document.getElementById("profilePhone").textContent =
-      profile.phone || "Not available";
-
-    document.getElementById("profileClass").textContent =
-      profile.class_level || "Not available";
-
-    document.getElementById("profileGroup").textContent =
-      profile.student_group || "Not applicable";
-
-    document.getElementById("profileRole").textContent =
-      profile.role;
-
-  } catch (error) {
-    console.error("Dashboard Error:", error);
-    alert("Dashboard Load করা যায়নি: " + error.message);
-  }
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.style.display = "block";
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => toast.style.display = "none", 2800);
 }
 
-// Logout
-document.getElementById("logoutBtn").addEventListener("click", async () => {
-  const button = document.getElementById("logoutBtn");
-  button.disabled = true;
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(section => section.classList.remove("active"));
+  document.getElementById("page-" + page)?.classList.add("active");
 
-  const { error } = await client.auth.signOut();
+  document.querySelectorAll(".nav-btn").forEach(button => {
+    button.classList.toggle("active", button.dataset.page === page);
+  });
 
-  if (error) {
-    alert("Logout করা যায়নি: " + error.message);
-    button.disabled = false;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+document.querySelectorAll(".nav-btn").forEach(button => {
+  button.addEventListener("click", () => showPage(button.dataset.page));
+});
+
+document.getElementById("topProfileBtn").addEventListener("click", () => showPage("profile"));
+document.getElementById("notificationBtn").addEventListener("click", () => showToast("নতুন কোনো নোটিফিকেশন নেই।"));
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  })[char]);
+}
+
+function bnNumber(value) {
+  return Number(value || 0).toLocaleString("bn-BD");
+}
+
+function showEmpty(elementId, icon, message) {
+  document.getElementById(elementId).innerHTML =
+    `<div class="empty"><span>${icon}</span>${escapeHTML(message)}</div>`;
+}
+
+async function loadProfile() {
+  const {data: sessionData, error: sessionError} = await client.auth.getSession();
+  if (sessionError) throw sessionError;
+
+  currentUser = sessionData.session?.user;
+  if (!currentUser) {
+    window.location.replace("login.html");
+    return false;
+  }
+
+  const {data: profile, error} = await client
+    .from("profiles")
+    .select("full_name, username, phone, class_level, student_group, role")
+    .eq("id", currentUser.id)
+    .single();
+
+  if (error) throw error;
+
+  if (profile.role !== "student") {
+    alert("এই ড্যাশবোর্ডটি শুধু শিক্ষার্থীদের জন্য।");
+    window.location.replace("login.html");
+    return false;
+  }
+
+  currentProfile = profile;
+  const name = profile.full_name || "শিক্ষার্থী";
+  const className = profile.class_level || "নির্ধারিত নয়";
+
+  document.getElementById("heroName").textContent = name;
+  document.getElementById("heroClass").textContent = "তোমার শ্রেণি: " + className;
+  document.getElementById("profileDisplayName").textContent = name;
+  document.getElementById("profileDisplayClass").textContent = "শ্রেণি: " + className;
+
+  document.getElementById("profileName").textContent = name;
+  document.getElementById("profileUsername").textContent = profile.username || "তথ্য নেই";
+  document.getElementById("profileEmail").textContent = currentUser.email || "তথ্য নেই";
+  document.getElementById("profilePhone").textContent = profile.phone || "তথ্য নেই";
+  document.getElementById("profileClass").textContent = className;
+  document.getElementById("profileGroup").textContent = profile.student_group || "প্রযোজ্য নয়";
+
+  return true;
+}
+
+async function loadCourses() {
+  const courseList = document.getElementById("courseList");
+  const {data: allCourses, error: courseError} = await client
+    .from("courses").select("*").eq("is_published", true);
+
+  if (courseError) throw courseError;
+
+  const {data: enrollments, error: enrollmentError} = await client
+    .from("course_enrollments").select("course_id")
+    .eq("student_id", currentUser.id);
+
+  if (enrollmentError) throw enrollmentError;
+
+  const enrolledIds = new Set((enrollments || []).map(item => item.course_id));
+  const enrolledCourses = (allCourses || []).filter(course => enrolledIds.has(course.id));
+
+  document.getElementById("courseCount").textContent = bnNumber(enrolledCourses.length);
+  document.getElementById("availableCourseCount").textContent = bnNumber((allCourses || []).length);
+  document.getElementById("homeCourseCount").textContent = bnNumber(enrolledCourses.length) + "টি কোর্স";
+
+  if (!enrolledCourses.length) {
+    showEmpty("courseList","📚","এখনো কোনো কোর্সে ভর্তি হওনি।");
     return;
   }
 
+  courseList.innerHTML = enrolledCourses.map(course => {
+    const title = course.title || course.name || "কোর্স";
+    const description = course.description || "এই কোর্সের বিস্তারিত তথ্য";
+    const image = course.thumbnail_url || course.image_url || "";
+    return `<article class="data-card">
+      ${image ? `<img src="${escapeHTML(image)}" alt="" style="width:100%;height:125px;object-fit:cover;border-radius:11px;margin-bottom:10px">` : `<div class="teacher-avatar">📘</div>`}
+      <strong>${escapeHTML(title)}</strong>
+      <p>${escapeHTML(description)}</p>
+      <small>তোমার ভর্তি করা কোর্স</small>
+    </article>`;
+  }).join("");
+}
+
+async function loadStore() {
+  const {data, error} = await client.from("store_products")
+    .select("*").eq("is_published", true);
+
+  if (error) throw error;
+
+  const list = document.getElementById("storeList");
+  if (!data?.length) {
+    showEmpty("storeList","🛍️","স্টোরে এখনো কোনো পণ্য প্রকাশ করা হয়নি।");
+    return;
+  }
+
+  list.innerHTML = data.map(product => {
+    const title = product.title || "শিক্ষা উপকরণ";
+    const image = product.image_url || "";
+    const price = product.price == null ? "মূল্য জানানো হয়নি" : "৳ " + bnNumber(product.price);
+    return `<article class="data-card">
+      ${image ? `<img src="${escapeHTML(image)}" alt="" style="width:100%;height:125px;object-fit:cover;border-radius:11px;margin-bottom:10px">` : `<div class="teacher-avatar">📦</div>`}
+      <strong>${escapeHTML(title)}</strong>
+      <p>${escapeHTML(product.description || "শিক্ষার প্রয়োজনীয় উপকরণ")}</p>
+      <p><b>${escapeHTML(price)}</b></p>
+      <small>অর্ডার ব্যবস্থা পরবর্তী ধাপে যুক্ত হবে</small>
+    </article>`;
+  }).join("");
+}
+
+async function loadLibrary() {
+  const {data: accessRows, error} = await client.from("library_access")
+    .select("product_id, access_type, granted_at")
+    .eq("student_id", currentUser.id);
+
+  if (error) throw error;
+
+  const ids = [...new Set((accessRows || []).map(row => row.product_id).filter(Boolean))];
+  if (!ids.length) {
+    showEmpty("libraryList","📖","তোমার লাইব্রেরিতে এখনো কোনো বই বা PDF নেই।");
+    return;
+  }
+
+  const {data: products, error: productError} = await client.from("store_products")
+    .select("*").in("id", ids);
+
+  if (productError) throw productError;
+
+  if (!products?.length) {
+    showEmpty("libraryList","📖","লাইব্রেরির পণ্যের তথ্য পাওয়া যায়নি।");
+    return;
+  }
+
+  document.getElementById("libraryList").innerHTML = products.map(product => {
+    const title = product.title || "বই বা PDF";
+    const file = product.file_url;
+    return `<article class="data-card">
+      <div class="teacher-avatar">📖</div>
+      <strong>${escapeHTML(title)}</strong>
+      <p>${escapeHTML(product.description || "তোমার লাইব্রেরির শিক্ষা উপকরণ")}</p>
+      ${file ? `<a href="${escapeHTML(file)}" target="_blank" rel="noopener" style="display:inline-block;margin-top:12px;color:var(--primary);font-size:13px;font-weight:700">খুলে দেখো →</a>` : `<small>ফাইল এখনো যুক্ত করা হয়নি</small>`}
+    </article>`;
+  }).join("");
+}
+
+async function loadExamsAndResults() {
+  const {data: exams, error: examError} = await client.from("exams").select("*");
+  if (examError) throw examError;
+
+  const {data: results, error: resultError} = await client.from("exam_results")
+    .select("*").eq("student_id", currentUser.id);
+
+  if (resultError) throw resultError;
+
+  document.getElementById("examCount").textContent = bnNumber(exams?.length || 0);
+  document.getElementById("resultCount").textContent = bnNumber(results?.length || 0);
+  document.getElementById("homeExamCount").textContent = bnNumber(exams?.length || 0) + "টি পরীক্ষা";
+  document.getElementById("homeResultCount").textContent = bnNumber(results?.length || 0) + "টি ফলাফল";
+
+  if (!exams?.length) {
+    showEmpty("examList","📝","এখনো কোনো পরীক্ষা প্রকাশ করা হয়নি।");
+  } else {
+    document.getElementById("examList").innerHTML = exams.map(exam => {
+      const title = exam.title || exam.name || "অনলাইন পরীক্ষা";
+      return `<article class="data-card">
+        <div class="teacher-avatar">📝</div>
+        <strong>${escapeHTML(title)}</strong>
+        <p>${escapeHTML(exam.description || "পরীক্ষার বিস্তারিত তথ্য")}</p>
+        <small>পরীক্ষা দেওয়ার ব্যবস্থা পরবর্তী ধাপে যুক্ত হবে</small>
+      </article>`;
+    }).join("");
+  }
+
+  if (!results?.length) {
+    showEmpty("resultList","🏆","এখনো কোনো পরীক্ষার ফলাফল প্রকাশিত হয়নি।");
+  } else {
+    document.getElementById("resultList").innerHTML = results.map(result => {
+      const marks = result.obtained_marks ?? "—";
+      const total = result.total_marks ?? "—";
+      const percentage = result.percentage == null ? "" : bnNumber(result.percentage) + "%";
+      return `<article class="data-card">
+        <div class="teacher-avatar">🏆</div>
+        <strong>পরীক্ষার ফলাফল</strong>
+        <p>প্রাপ্ত নম্বর: ${escapeHTML(marks)} / ${escapeHTML(total)}</p>
+        <small>${escapeHTML(percentage)}</small>
+      </article>`;
+    }).join("");
+  }
+}
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  const button = document.getElementById("logoutBtn");
+  button.disabled = true;
+  const {error} = await client.auth.signOut();
+  if (error) {
+    showToast("লগআউট করা যায়নি: " + error.message);
+    button.disabled = false;
+    return;
+  }
   window.location.replace("login.html");
 });
 
-// Menu navigation
-const pageTitles = {
-  home: "Home",
-  courses: "My Courses",
-  classes: "Live Classes",
-  exams: "Examinations",
-  results: "My Results",
-  profile: "My Profile",
-  settings: "Settings"
-};
+async function startDashboard() {
+  try {
+    const allowed = await loadProfile();
+    if (!allowed) return;
 
-document.querySelectorAll("[data-page]").forEach(button => {
-  button.addEventListener("click", () => {
-    const page = button.dataset.page;
+    const jobs = [
+      ["কোর্স", loadCourses],
+      ["স্টোর", loadStore],
+      ["লাইব্রেরি", loadLibrary],
+      ["পরীক্ষা ও ফলাফল", loadExamsAndResults]
+    ];
 
-    document.querySelectorAll(".bottom-nav button").forEach(item => {
-      item.classList.toggle("active", item.dataset.page === page);
+    const outcomes = await Promise.allSettled(jobs.map(job => job[1]()));
+    outcomes.forEach((outcome, index) => {
+      if (outcome.status === "rejected") {
+        console.error(jobs[index][0] + " Load Error:", outcome.reason);
+        const target = {
+          "কোর্স":"courseList",
+          "স্টোর":"storeList",
+          "লাইব্রেরি":"libraryList",
+          "পরীক্ষা ও ফলাফল":"examList"
+        }[jobs[index][0]];
+        showEmpty(target,"⚠️",jobs[index][0] + " লোড করা যায়নি। ডেটাবেসের অনুমতি বা টেবিলের তথ্য পরীক্ষা করতে হবে।");
+      }
     });
-
-    const profileSection = document.getElementById("profileSection");
-    const contentSection = document.getElementById("contentSection");
-
-    if (page === "home") {
-      profileSection.classList.remove("hidden");
-      contentSection.classList.add("hidden");
-      return;
+  } catch (error) {
+    console.error("Dashboard Error:", error);
+    showToast("ড্যাশবোর্ড লোড করা যায়নি: " + error.message);
+    if (error.message?.toLowerCase().includes("jwt") ||
+        error.message?.toLowerCase().includes("session")) {
+      window.location.replace("login.html");
     }
+  }
+}
 
-    if (page === "profile") {
-      profileSection.classList.remove("hidden");
-      contentSection.classList.add("hidden");
-      profileSection.scrollIntoView({ behavior: "smooth" });
-      return;
-    }
-
-    profileSection.classList.add("hidden");
-    contentSection.classList.remove("hidden");
-
-    document.getElementById("contentTitle").textContent =
-      pageTitles[page] || "Dashboard";
-
-    document.getElementById("contentMessage").textContent =
-      pageTitles[page] + " বিভাগে এখনো কোনো তথ্য যোগ করা হয়নি।";
-
-    contentSection.scrollIntoView({ behavior: "smooth" });
-  });
-});
-
-loadStudentDashboard();
+startDashboard();
 </script>
-
 </body>
 </html>
