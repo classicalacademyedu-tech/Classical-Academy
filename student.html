@@ -103,6 +103,80 @@ main{max-width:1080px;margin:auto;padding:18px 15px 30px}
  .stat-grid{grid-template-columns:repeat(4,1fr)}
  .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border:1px solid var(--border);border-bottom:0;border-radius:17px 17px 0 0}
 }
+  
+html {
+  scroll-behavior: smooth;
+}
+
+.page.active {
+  animation: pageEnter .35s ease both;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(13px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quick-card,
+.category,
+.teacher,
+.data-card,
+.profile-row,
+.icon-btn,
+.nav-btn,
+.hero-btn,
+.support-banner button {
+  transition: transform .22s ease,
+              box-shadow .22s ease,
+              background .22s ease;
+}
+
+.quick-card:active,
+.category:active,
+.teacher:active,
+.data-card:active,
+.profile-row:active,
+.hero-btn:active {
+  transform: scale(.97);
+}
+
+@media (hover: hover) {
+  .quick-card:hover,
+  .category:hover,
+  .teacher:hover,
+  .data-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(42,25,83,.12);
+  }
+
+  .icon-btn:hover {
+    background: #f1ebff;
+    transform: translateY(-2px);
+  }
+}
+
+.profile-details {
+  animation: pageEnter .3s ease both;
+}
+
+.profile-row {
+  min-height: 59px;
+}
+
+.nav-btn {
+  transition: color .2s ease, transform .2s ease;
+}
+
+.nav-btn:active {
+  transform: scale(.90);
+}
+
 </style>
 </head>
 
