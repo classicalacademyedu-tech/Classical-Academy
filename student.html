@@ -206,7 +206,7 @@ main{max-width:1080px;margin:auto;padding:18px 15px 30px}
       <div><h2 id="profileDisplayName">শিক্ষার্থী</h2><small id="profileDisplayClass">শিক্ষার্থী অ্যাকাউন্ট</small></div>
     </div>
 
-    <div class="profile-details">
+    <div class="profile-details" id="profileEditDetails" hidden>
       <p><b>পূর্ণ নাম</b><span id="profileName">লোড হচ্ছে...</span></p>
       <p><b>ইউজারনেম</b><span id="profileUsername">লোড হচ্ছে...</span></p>
       <p><b>ইমেইল</b><span id="profileEmail">লোড হচ্ছে...</span></p>
@@ -218,7 +218,7 @@ main{max-width:1080px;margin:auto;padding:18px 15px 30px}
     <div class="profile-group">
       <h3>আমার অ্যাকাউন্ট</h3>
       <div class="profile-list">
-        <button class="profile-row" onclick="showToast('প্রোফাইল সম্পাদনা শিগগিরই চালু হবে।')"><span class="row-icon">👤</span><span class="row-text">প্রোফাইল সম্পাদনা</span><span class="arrow">›</span></button>
+        <button class="profile-row" onclick="toggleProfileEdit(this)"><span class="row-icon">👤</span><span class="row-text">প্রোফাইল সম্পাদনা</span><span class="arrow">›</span></button>
         <button class="profile-row" onclick="showToast('বুকমার্ক ফিচার শিগগিরই চালু হবে।')"><span class="row-icon">🔖</span><span class="row-text">আমার বুকমার্ক</span><span class="arrow">›</span></button>
         <button class="profile-row" onclick="showToast('অর্ডার ইতিহাস শিগগিরই দেখানো হবে।')"><span class="row-icon">🧾</span><span class="row-text">অর্ডার ইতিহাস</span><span class="arrow">›</span></button>
         <button class="profile-row" onclick="showToast('তোমার ডিভাইস ব্যবস্থাপনা শিগগিরই চালু হবে।')"><span class="row-icon">📱</span><span class="row-text">আমার ডিভাইস</span><span class="arrow">›</span></button>
