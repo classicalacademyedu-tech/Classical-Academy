@@ -553,6 +553,145 @@ document.getElementById("editPhone").value =
   return true;
 }
 
+let pendingPhone = "";
+
+async function saveProfileDetails() {
+  const message = document.getElementById("editMessage");
+
+  const updates = {
+    full_name: document.getElementById("editFullName").value.trim(),
+    username: document.getElementById("editUsername").value.trim(),
+    class_level: document.getElementById("editClass").value.trim(),
+    student_group: document.getElementById("editGroup").value
+  };
+
+  if (!updates.full_name || !updates.username) {
+    message.textContent = "নাম ও ইউজারনেম পূরণ করো।";
+    return;
+  }
+
+  message.textContent = "সংরক্ষণ হচ্ছে...";
+
+  try {
+    const { error } = await client
+      .from("profiles")
+      .update(updates)
+      .eq("id", currentUser.id);
+
+    if (error) throw error;
+
+    currentProfile = { ...currentProfile, ...updates };
+
+    document.getElementById("heroName").textContent = updates.full_name;
+    document.getElementById("heroClass").textContent =
+      "তোমার শ্রেণি: " + (updates.class_level || "নির্ধারিত নয়");
+
+    document.getElementById("profileDisplayName").textContent =
+      updates.full_name;
+
+    document.getElementById("profileDisplayClass").textContent =
+      "শ্রেণি: " + (updates.class_level || "নির্ধারিত নয়");
+
+    document.getElementById("profileName").textContent =
+      updates.full_name;
+    document.getElementById("profileUsername").textContent =
+      updates.username;
+    document.getElementById("profileClass").textContent =
+      updates.class_level || "নির্ধারিত নয়";
+    document.getElementById("profileGroup").textContent =
+      updates.student_group || "প্রযোজ্য নয়";
+
+    message.textContent = "প্রোফাইলের তথ্য সফলভাবে সংরক্ষিত হয়েছে।";
+    showToast("প্রোফাইল আপডেট হয়েছে।");
+
+  } catch (error) {
+    console.error("Profile Save Error:", error);
+    message.textContent = "সংরক্ষণ হয়নি: " + error.message;
+  }
+}
+
+async function sendPhoneOTP() {
+  const message = document.getElementById("editMessage");
+  const phone = document.getElementById("editPhone").value.trim();
+
+  if (!/^\+8801[3-9]\d{8}$/.test(phone)) {
+    message.textContent =
+      "সঠিক বাংলাদেশি নম্বর দাও। উদাহরণ: +8801712345678";
+    return;
+  }
+
+  if (phone === currentProfile.phone) {
+    message.textContent = "এই নম্বরটি আগে থেকেই সংরক্ষিত আছে।";
+    return;
+  }
+
+  message.textContent = "OTP পাঠানোর চেষ্টা হচ্ছে...";
+
+  try {
+    const { error } = await client.auth.updateUser({
+      phone: phone
+    });
+
+    if (error) throw error;
+
+    pendingPhone = phone;
+    document.getElementById("phoneOtpArea").hidden = false;
+
+    message.textContent = "SMS-এ পাঠানো ৬ সংখ্যার OTP লিখে যাচাই করো।";
+
+  } catch (error) {
+    console.error("Phone OTP Error:", error);
+    message.textContent = "OTP পাঠানো যায়নি: " + error.message;
+  }
+}
+
+async function verifyPhoneOTP() {
+  const message = document.getElementById("editMessage");
+  const token = document.getElementById("phoneOTP").value.trim();
+
+  if (!pendingPhone || !/^\d{6}$/.test(token)) {
+    message.textContent = "সঠিক ৬ সংখ্যার OTP লিখো।";
+    return;
+  }
+
+  message.textContent = "OTP যাচাই হচ্ছে...";
+
+  try {
+    const { error } = await client.auth.verifyOtp({
+      phone: pendingPhone,
+      token: token,
+      type: "phone_change"
+    });
+
+    if (error) throw error;
+
+    const { error: profileError } = await client
+      .from("profiles")
+      .update({ phone: pendingPhone })
+      .eq("id", currentUser.id);
+
+    if (profileError) throw profileError;
+
+    currentProfile.phone = pendingPhone;
+
+    document.getElementById("profilePhone").textContent = pendingPhone;
+    document.getElementById("editPhone").value = pendingPhone;
+    document.getElementById("phoneOtpArea").hidden = true;
+    document.getElementById("phoneOTP").value = "";
+
+    pendingPhone = "";
+
+    message.textContent =
+      "মোবাইল নম্বর সফলভাবে যাচাই ও সংরক্ষণ হয়েছে।";
+
+    showToast("মোবাইল নম্বর যাচাই সম্পন্ন হয়েছে।");
+
+  } catch (error) {
+    console.error("Phone Verification Error:", error);
+    message.textContent = "যাচাই সম্পন্ন হয়নি: " + error.message;
+  }
+}
+
 async function loadCourses() {
   const courseList = document.getElementById("courseList");
   const {data: allCourses, error: courseError} = await client
