@@ -176,9 +176,34 @@ html {
 .nav-btn:active {
   transform: scale(.90);
 }
+.edit-input {
+  display:block;
+  width:100%;
+  padding:13px;
+  margin-top:7px;
+  border:1px solid #e5deef;
+  border-radius:11px;
+  background:#faf9fd;
+  font:inherit;
+  outline:none;
+}
 
+.edit-input:focus {
+  border-color:#7049c7;
+  box-shadow:0 0 0 3px #7049c71c;
+}
+
+#page-profile-edit label {
+  font-size:14px;
+  font-weight:600;
+}
+
+#page-profile-edit .profile-details {
+  animation:pageEnter .35s ease both;
+}
 </style>
-</head>
+  
+  </head>
 
 <body>
 <header class="topbar">
@@ -292,7 +317,11 @@ html {
     <div class="profile-group">
       <h3>আমার অ্যাকাউন্ট</h3>
       <div class="profile-list">
-        <button class="profile-row" onclick="toggleProfileEdit(this)"><span class="row-icon">👤</span><span class="row-text">প্রোফাইল সম্পাদনা</span><span class="arrow">›</span></button>
+        <button class="profile-row" onclick="showPage('profile-edit')">
+  <span class="row-icon">✏️</span>
+  <span class="row-text">প্রোফাইল সম্পাদনা</span>
+  <span class="arrow">›</span>
+        </button>
         <button class="profile-row" onclick="showToast('বুকমার্ক ফিচার শিগগিরই চালু হবে।')"><span class="row-icon">🔖</span><span class="row-text">আমার বুকমার্ক</span><span class="arrow">›</span></button>
         <button class="profile-row" onclick="showToast('অর্ডার ইতিহাস শিগগিরই দেখানো হবে।')"><span class="row-icon">🧾</span><span class="row-text">অর্ডার ইতিহাস</span><span class="arrow">›</span></button>
         <button class="profile-row" onclick="showToast('তোমার ডিভাইস ব্যবস্থাপনা শিগগিরই চালু হবে।')"><span class="row-icon">📱</span><span class="row-text">আমার ডিভাইস</span><span class="arrow">›</span></button>
@@ -318,6 +347,73 @@ html {
       </div>
     </div>
   </section>
+  
+<!-- PROFILE EDIT PAGE -->
+<section class="page" id="page-profile-edit">
+
+  <div class="section-head">
+    <button class="see-all" onclick="showPage('profile')">← ফিরে যাও</button>
+    <h2>প্রোফাইল সম্পাদনা</h2>
+  </div>
+
+  <div class="profile-details" style="display:grid;gap:14px">
+
+    <label>পূর্ণ নাম
+      <input id="editFullName" class="edit-input" type="text" placeholder="তোমার পূর্ণ নাম">
+    </label>
+
+    <label>ইউজারনেম
+      <input id="editUsername" class="edit-input" type="text" placeholder="ইউজারনেম">
+    </label>
+
+    <label>শ্রেণি
+      <input id="editClass" class="edit-input" type="text" placeholder="তোমার শ্রেণি">
+    </label>
+
+    <label>বিভাগ
+      <select id="editGroup" class="edit-input">
+        <option value="">বিভাগ নির্বাচন করো</option>
+        <option value="Science">বিজ্ঞান</option>
+        <option value="Humanities">মানবিক</option>
+        <option value="Business Studies">ব্যবসায় শিক্ষা</option>
+      </select>
+    </label>
+
+    <button class="hero-btn" style="background:#5633a5;color:white"
+      onclick="saveProfileDetails()">
+      পরিবর্তন সংরক্ষণ করো
+    </button>
+
+    <hr>
+
+    <h3>📱 মোবাইল নম্বর যাচাই</h3>
+
+    <label>নতুন মোবাইল নম্বর
+      <input id="editPhone" class="edit-input" type="tel"
+        placeholder="+8801XXXXXXXXX">
+    </label>
+
+    <button class="hero-btn" style="background:#5633a5;color:white"
+      onclick="sendPhoneOTP()">
+      OTP পাঠাও
+    </button>
+
+    <div id="phoneOtpArea" hidden>
+      <label>SMS-এ পাওয়া OTP
+        <input id="phoneOTP" class="edit-input" type="text"
+          inputmode="numeric" maxlength="6" placeholder="৬ সংখ্যার OTP">
+      </label>
+
+      <button class="hero-btn" style="background:#21865b;color:white"
+        onclick="verifyPhoneOTP()">
+        OTP যাচাই ও নম্বর সংরক্ষণ
+      </button>
+    </div>
+
+    <p id="editMessage" style="font-size:13px;color:#5633a5"></p>
+  </div>
+</section>
+
 </main>
 
 <nav class="bottom-nav">
@@ -425,6 +521,20 @@ async function loadProfile() {
   }
 
   currentProfile = profile;
+  document.getElementById("editFullName").value =
+  profile.full_name || "";
+
+document.getElementById("editUsername").value =
+  profile.username || "";
+
+document.getElementById("editClass").value =
+  profile.class_level || "";
+
+document.getElementById("editGroup").value =
+  profile.student_group || "";
+
+document.getElementById("editPhone").value =
+  profile.phone || "";
   const name = profile.full_name || "শিক্ষার্থী";
   const className = profile.class_level || "নির্ধারিত নয়";
 
